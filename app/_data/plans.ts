@@ -231,7 +231,7 @@ export const verticals: {
     key: "pharmacy",
     label: "Pharmacies",
     blurb: "Counter operations, stock depth, and NHIS reimbursement on one screen.",
-    href: "/pricing#pharmacy",
+    href: "/pharmacies",
   },
   {
     key: "patient",

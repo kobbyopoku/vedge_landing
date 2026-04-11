@@ -212,6 +212,66 @@ export default function HomePage() {
         </Container>
       </section>
 
+      {/* ═══════════════════════ DESIGN PARTNER CALLOUT ═══════════════════════ */}
+      <section aria-labelledby="partners-heading" className="relative overflow-hidden bg-clay text-bone">
+        <div className="grain absolute inset-0 !opacity-20" />
+        <Container className="relative z-10 py-24 md:py-32">
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 md:col-span-7">
+              <Kicker className="!text-bone">Design partner programme · 2026</Kicker>
+              <h2 id="partners-heading" className="reveal mt-8 font-display text-hero text-bone">
+                Fifteen facilities. <span className="italic-display !text-sun">One year. No invoice.</span>
+              </h2>
+              <p className="reveal reveal-delay-1 mt-8 max-w-xl font-display text-xl text-bone/90 leading-snug">
+                We are taking fifteen West African hospitals, clinics, labs, and pharmacies into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
+              </p>
+              <ul className="reveal reveal-delay-2 mt-10 space-y-3">
+                {[
+                  "12 months of Vedge, every module, every seat, every branch",
+                  "A direct line to the engineers writing the code",
+                  "Roadmap influence — your requests go to the top of the queue",
+                  "Early access to new modules before everyone else",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-bone/90">
+                    <span aria-hidden="true" className="mt-[9px] inline-block h-[5px] w-[5px] rotate-45 bg-sun" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="reveal reveal-delay-3 mt-12">
+                <Link
+                  href="/partners"
+                  className="inline-flex items-center gap-4 border-b border-bone pb-2 font-display text-3xl text-bone hover:text-sun md:text-4xl"
+                >
+                  Read the full programme <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* The three big numbers as a standalone rail */}
+            <div className="col-span-12 mt-12 md:col-span-5 md:mt-0 md:border-l md:border-bone/30 md:pl-10">
+              <div className="reveal reveal-delay-2 flex flex-col gap-12">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Partners</div>
+                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">15</div>
+                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Deliberate mix across hospitals, clinics, labs, and pharmacies.</div>
+                </div>
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Duration</div>
+                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">12 mo</div>
+                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Starts the day your data is migrated.</div>
+                </div>
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Cost</div>
+                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">₵0</div>
+                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">All modules, all users, migration included.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ═══════════════════════ TESTIMONIAL ═══════════════════════ */}
       <section className="py-28 md:py-40">
         <Container>

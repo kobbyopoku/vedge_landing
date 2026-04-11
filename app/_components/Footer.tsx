@@ -8,17 +8,18 @@ const columns = [
     links: [
       { label: "Hospitals", href: "/hospitals" },
       { label: "Laboratories", href: "/laboratories" },
+      { label: "Pharmacies", href: "/pharmacies" },
       { label: "Pricing", href: "/pricing" },
-      { label: "Security & compliance", href: "/about#security" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
+      { label: "Design partners", href: "/partners" },
+      { label: "Security & compliance", href: "/about#security" },
       { label: "Careers", href: "/about#careers" },
-      { label: "Press", href: "/contact" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   {

@@ -38,3 +38,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# design-partner leads — persisted locally by /api/design-partners
+# (swap to a real backend before launch; do not commit PII)
+/data/

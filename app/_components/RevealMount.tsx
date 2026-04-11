@@ -1,25 +1,44 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * Mounts a single IntersectionObserver that watches every element carrying
- * the .reveal utility class and toggles .is-visible when they enter the
- * viewport. This avoids splattering individual client components across
- * the tree — we stay with Server Components everywhere else.
+ * Watches every `.reveal` element on the page and toggles `.is-visible`
+ * when each enters the viewport.
  *
- * The component renders nothing; it only exists for the effect.
+ * IMPORTANT: we re-run on every pathname change. Without that, client-side
+ * navigations would mount new `.reveal` nodes that nothing is observing,
+ * and sub-pages would appear permanently blank.
+ *
+ * Safety net: on the next animation frame, any element already inside the
+ * initial viewport is marked visible immediately, so above-the-fold content
+ * cannot stall if the observer callback is delayed by a few ticks.
  */
 export function RevealMount() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const nodes = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
+    if (nodes.length === 0) return;
+
+    // Respect reduced-motion — show everything, no animation.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => {
-        el.classList.add("is-visible");
-      });
+      nodes.forEach((n) => n.classList.add("is-visible"));
       return;
     }
+
+    // Reveal anything already inside the initial viewport, on the next frame.
+    const frame = requestAnimationFrame(() => {
+      nodes.forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          node.classList.add("is-visible");
+        }
+      });
+    });
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -30,14 +49,18 @@ export function RevealMount() {
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -60px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
     );
 
-    const nodes = document.querySelectorAll<HTMLElement>(".reveal");
-    nodes.forEach((node) => observer.observe(node));
+    nodes.forEach((node) => {
+      if (!node.classList.contains("is-visible")) observer.observe(node);
+    });
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [pathname]);
 
   return null;
 }

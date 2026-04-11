@@ -3,9 +3,10 @@ import { Container } from "./Container";
 
 const nav = [
   { label: "Hospitals", href: "/hospitals" },
-  { label: "Laboratories", href: "/laboratories" },
+  { label: "Labs", href: "/laboratories" },
+  { label: "Pharmacies", href: "/pharmacies" },
   { label: "Pricing", href: "/pricing" },
-  { label: "About", href: "/about" },
+  { label: "Partners", href: "/partners" },
 ];
 
 /**
@@ -22,7 +23,7 @@ export function Header() {
           <span className="h-2 w-2 translate-y-[-4px] bg-clay transition-transform duration-500 group-hover:rotate-45" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-10 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-7 md:flex lg:gap-9">
           {nav.map((item) => (
             <Link
               key={item.href}
