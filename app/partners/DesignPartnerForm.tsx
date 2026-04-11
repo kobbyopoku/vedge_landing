@@ -15,10 +15,18 @@ const facilityTypes = [
 const countries = [
   { value: "ghana", label: "Ghana" },
   { value: "nigeria", label: "Nigeria" },
+  { value: "kenya", label: "Kenya" },
+  { value: "south-africa", label: "South Africa" },
+  { value: "rwanda", label: "Rwanda" },
+  { value: "uganda", label: "Uganda" },
+  { value: "tanzania", label: "Tanzania" },
+  { value: "ethiopia", label: "Ethiopia" },
   { value: "cote-divoire", label: "Côte d\u2019Ivoire" },
-  { value: "togo", label: "Togo" },
   { value: "senegal", label: "Senegal" },
-  { value: "other", label: "Elsewhere in West Africa" },
+  { value: "togo", label: "Togo" },
+  { value: "egypt", label: "Egypt" },
+  { value: "morocco", label: "Morocco" },
+  { value: "other", label: "Elsewhere in Africa" },
 ] as const;
 
 /**
@@ -128,7 +136,7 @@ export function DesignPartnerForm() {
           name="problem"
           rows={5}
           required
-          placeholder="We lose about 20% of NHIS claims to submission errors. I want every claim filed correctly the same day the patient leaves."
+          placeholder="We lose about 20% of our insurance claims to submission errors. I want every claim filed correctly the same day the patient leaves."
           className="mt-3 w-full border-0 border-b border-bone/30 bg-transparent py-3 font-display text-xl text-bone placeholder:text-bone/30 focus:border-sun focus:outline-none"
         />
       </div>

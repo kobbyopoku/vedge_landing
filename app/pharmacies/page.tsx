@@ -7,7 +7,7 @@ import { KenteDivider } from "../_components/KenteDivider";
 
 export const metadata: Metadata = {
   title: "For pharmacies",
-  description: "POS, inventory, NHIS reimbursement, and visibility when doctors prescribe. The Vedge pharmacy product.",
+  description: "POS, inventory, insurance reimbursement — NHIS and private plans — and visibility when doctors prescribe. The Vedge pharmacy product.",
 };
 
 // Core capabilities of the pharmacy product — grouped by surface.
@@ -33,9 +33,9 @@ const surfaces = [
     body: "When a Vedge hospital prescribes, the prescription lands in your queue before the patient reaches the door. Scan, dispense, counsel, close.",
   },
   {
-    code: "NHI",
-    name: "NHIS reimbursement",
-    body: "Claim capture the moment you dispense, not at the end of the month. Submissions and reconciliation are part of the workflow, not a chore.",
+    code: "INS",
+    name: "Insurance reimbursement",
+    body: "NHIS, private insurers, corporate plans, and community schemes. Claim capture the moment you dispense, not at the end of the month. Submissions and reconciliation are part of the workflow, not a chore.",
   },
   {
     code: "CTR",
@@ -59,7 +59,7 @@ const flywheel = [
   { num: "01", title: "A patient is prescribed a medication", body: "Inside a Vedge hospital or clinic, during a visit. The prescription is digital from the moment it\u2019s written." },
   { num: "02", title: "Vedge finds nearby pharmacies", body: "The patient app locates every pharmacy within a radius that carries the prescribed drug right now, ranked by distance, price, and stock." },
   { num: "03", title: "Your pharmacy gets the ping", body: "If you\u2019re on a paid tier and you have the stock, you appear. The patient taps, the order lands in your queue, they walk over." },
-  { num: "04", title: "They pick up, you dispense", body: "Scan, counsel, close. NHIS claim files itself if applicable. Revenue and reimbursement logged in one motion." },
+  { num: "04", title: "They pick up, you dispense", body: "Scan, counsel, close. If the patient is insured — NHIS or otherwise — the claim files itself in the right format for the right provider. Revenue and reimbursement logged in one motion." },
 ];
 
 // Tier comparison — mirrors GTM: Free seeds density, paid tier unlocks visibility.
@@ -89,7 +89,7 @@ const tierHighlights = [
       "Demand forecasting",
       "Expiry tracking",
       "Controlled-drug ledger",
-      "NHIS reimbursement",
+      "Insurance reimbursement (NHIS + private)",
       "Appears in patient app when doctors prescribe",
     ],
   },
@@ -127,7 +127,7 @@ export default function PharmaciesPage() {
               <div className="mt-12 grid grid-cols-12 gap-6">
                 <div className="col-span-12 md:col-span-7">
                   <p className="reveal reveal-delay-1 max-w-xl font-display text-lg leading-relaxed text-ink/80">
-                    Vedge Pharmacy is a point-of-sale, an inventory system, an NHIS claims desk, and a discovery surface — on one screen, for every counter between Ridge and Tamale.
+                    Vedge Pharmacy is a point-of-sale, an inventory system, an insurance claims desk (NHIS, private, corporate — every provider), and a discovery surface. On one screen, in one workflow, for every pharmacy that fills a prescription.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
                     <Button href="/contact">Book a counter demo</Button>
@@ -158,7 +158,7 @@ export default function PharmaciesPage() {
                 What lives on <br /><span className="italic-display">the counter.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-6 max-w-sm text-ink/70">
-                A pharmacy in West Africa runs nine things at once. We put them on one screen so you can actually see all of them.
+                A pharmacy in any African city runs nine things at once. We put them on one screen so you can actually see all of them.
               </p>
             </div>
             <div className="col-span-12 md:col-span-8">

@@ -11,7 +11,7 @@ const marqueeChips = [
   "Inpatient Wards",
   "MAR · Medication Administration",
   "Levey-Jennings QC",
-  "NHIS Claims",
+  "Insurance Claims",
   "Critical Lab Alerts",
   "Pharmacy POS",
   "Reagent Lot Tracking",
@@ -25,8 +25,8 @@ const marqueeChips = [
 const features = [
   {
     num: "01",
-    title: "Built for NHIS from day one.",
-    body: "Claims submission, pre-authorisation, and reimbursement workflows that actually match how the scheme operates in 2026 — not a ported US EHR with Ghana bolted on.",
+    title: "Built for every insurer your patients carry.",
+    body: "NHIS, private insurers, corporate health plans, community schemes — Vedge captures claims during the visit and submits them in the format each provider expects. No three-week reconciliation month-end headache.",
   },
   {
     num: "02",
@@ -40,8 +40,8 @@ const features = [
   },
   {
     num: "04",
-    title: "Pricing that respects a Ghanaian P&L.",
-    body: "Plans start at ₵149 a month. 30-day trials. No forced annual contracts. Founding customer programme for the first 15 hospitals — 40% off the first year.",
+    title: "Pricing that respects an African P&L.",
+    body: "Plans start at ₵149 a month. 30-day trials. No forced annual contracts. Founding customer programme for the first 15 facilities — 40% off the first year.",
   },
 ];
 
@@ -58,15 +58,15 @@ export default function HomePage() {
             </div>
             <div className="col-span-12 md:col-span-10">
               <h1 className="reveal font-display text-hero text-ink">
-                A hospital operating system<br />
+                A health operating system<br />
                 <span className="italic-display">built for the way</span><br />
-                West Africa <span className="italic-display">actually works.</span>
+                Africa <span className="italic-display">actually works.</span>
               </h1>
 
               <div className="mt-10 grid grid-cols-12 gap-6">
                 <div className="col-span-12 md:col-span-7">
                   <p className="reveal reveal-delay-1 max-w-xl font-display text-lg leading-relaxed text-ink/80">
-                    Vedge is the records platform hospitals, clinics, laboratories, and pharmacies across Ghana use to run wards, file NHIS claims, dispense medication, and stay in sync — whether the lights are on or off.
+                    Vedge is the records platform hospitals, clinics, laboratories, and pharmacies across Africa use to run wards, file insurance claims with every provider their patients carry, dispense medication, and stay in sync — whether the lights are on or off.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap items-center gap-4">
                     <Button href="/contact">Book a demo</Button>
@@ -77,7 +77,7 @@ export default function HomePage() {
                   <div className="reveal reveal-delay-2 grid grid-cols-2 gap-y-6">
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Serving</div>
-                      <div className="mt-1 font-display text-2xl">Ghana · Nigeria</div>
+                      <div className="mt-1 font-display text-2xl">Africa · Pan-continental</div>
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Verticals</div>
@@ -223,7 +223,7 @@ export default function HomePage() {
                 Fifteen facilities. <span className="italic-display !text-sun">One year. No invoice.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-8 max-w-xl font-display text-xl text-bone/90 leading-snug">
-                We are taking fifteen West African hospitals, clinics, labs, and pharmacies into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
+                We are taking fifteen African hospitals, clinics, labs, and pharmacies into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
               </p>
               <ul className="reveal reveal-delay-2 mt-10 space-y-3">
                 {[

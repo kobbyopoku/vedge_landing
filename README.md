@@ -1,6 +1,6 @@
 # Vedge — Landing Site
 
-The marketing site for **Vedge**, a healthcare operating system built for West Africa. Multi-page site covering product, pricing, and company.
+The marketing site for **Vedge**, a health operating system built for Africa. Multi-page site covering product, pricing, design partners, and company.
 
 ## Stack
 
@@ -20,11 +20,17 @@ Tokens are defined in [tailwind.config.ts](./tailwind.config.ts) and consumed as
 ## Pages
 
 - `/` — Home
-- `/hospitals` — Hospital product page
+- `/hospitals` — Hospitals & clinics product page
 - `/laboratories` — Laboratory product page
-- `/pricing` — All 11 plans, segmented by facility type
-- `/about` — Mission, story, Ghana focus
+- `/pharmacies` — Pharmacy product page
+- `/pricing` — All 11 plans, segmented by facility vertical
+- `/partners` — Design partner programme + application form
+- `/about` — Mission, principles, team
 - `/contact` — Demo request
+
+## API routes
+
+- `POST /api/design-partners` — accepts a design partner application, validates 11 required fields, and persists one JSON line to `data/design-partners.jsonl` (gitignored). This is dev-time storage; swap for Firebase/Supabase/Resend before launch. See the route file for details.
 
 ## Development
 

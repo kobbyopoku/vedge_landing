@@ -6,7 +6,7 @@ import { DesignPartnerForm } from "./DesignPartnerForm";
 
 export const metadata: Metadata = {
   title: "Design partners",
-  description: "A twelve-month free programme for fifteen West African facilities willing to shape Vedge from the inside.",
+  description: "A twelve-month free programme for fifteen African facilities willing to shape Vedge from the inside.",
 };
 
 const benefits = [
@@ -84,7 +84,7 @@ export default function PartnersPage() {
                 <span className="italic-display">Twelve months.</span> Zero invoice.
               </h1>
               <p className="reveal reveal-delay-1 mt-10 max-w-2xl font-display text-xl text-ink/80 leading-snug">
-                The Vedge Design Partner programme. A twelve-month free deployment for fifteen West African healthcare facilities willing to build the product with us, on camera, on the ward, on the record.
+                The Vedge Design Partner programme. A twelve-month free deployment for fifteen African healthcare facilities willing to build the product with us, on camera, on the ward, on the record.
               </p>
 
               {/* The shape of the deal, in four numbers */}

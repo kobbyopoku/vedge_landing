@@ -44,7 +44,7 @@ export function Footer() {
               <span className="h-2 w-2 translate-y-[-6px] bg-clay" />
             </Link>
             <p className="mt-6 max-w-sm font-display text-[1.35rem] leading-snug text-bone/80">
-              A hospital operating system <span className="italic-display !text-sun">built for West Africa</span> — from the wards of Ridge to the bush clinics of the North.
+              A health operating system <span className="italic-display !text-sun">built for Africa</span> — from the wards of Accra to the lab benches of Nairobi, and every counter, clinic, and counter-top in between.
             </p>
             <p className="mt-8 font-mono text-[10px] uppercase tracking-kicker text-bone/50">
               © {new Date().getFullYear()} Vedge Health Systems Ltd.

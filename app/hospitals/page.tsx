@@ -7,7 +7,7 @@ import { KenteDivider } from "../_components/KenteDivider";
 
 export const metadata: Metadata = {
   title: "For hospitals and clinics",
-  description: "Inpatient, outpatient, pharmacy, labs, and NHIS claims on one chart. The Vedge hospital product.",
+  description: "Inpatient, outpatient, pharmacy, labs, and insurance claims — NHIS, private, and corporate plans — on one chart. The Vedge hospital product.",
 };
 
 const capabilities = [
@@ -16,18 +16,18 @@ const capabilities = [
   { code: "WRD", name: "Wards & beds", body: "Live bed occupancy, housekeeping status, and isolation flags." },
   { code: "LAB", name: "Integrated lab orders", body: "Orders flow to the in-house lab or an external reference lab via HL7." },
   { code: "PHM", name: "Pharmacy dispensing", body: "Prescriptions flow from chart to pharmacy queue to counter to patient." },
-  { code: "NHI", name: "NHIS claims", body: "Claim capture during the visit, not three days later. Submission and reconciliation built in." },
+  { code: "INS", name: "Insurance claims", body: "NHIS, private insurers, corporate health plans, and community schemes. Claims captured during the visit, submitted in each provider\u2019s format, reconciled automatically." },
   { code: "ALT", name: "Critical lab alerts", body: "Results outside of reference range page the responsible clinician within seconds." },
   { code: "AID", name: "AI diagnostic assist", body: "Symptom-to-differential suggestions that respect a clinician\u2019s judgement, not replace it." },
   { code: "ROL", name: "Custom roles & audit", body: "Every action is logged. Build roles that match your org chart, not ours." },
 ];
 
 const workflow = [
-  { step: "01", title: "Patient arrives", body: "Reception captures the NHIS card or private policy. Triage auto-suggests priority." },
+  { step: "01", title: "Patient arrives", body: "Reception captures their insurance — NHIS, private, corporate, whatever they carry. Triage auto-suggests priority." },
   { step: "02", title: "Clinician sees them", body: "Full chart in under a second. Vital signs stream from the monitor if you have one." },
   { step: "03", title: "Orders go out", body: "Labs, imaging, and meds leave the encounter automatically \u2014 no paper forms." },
   { step: "04", title: "Results come back", body: "Abnormal results page the clinician. Normal results live in the chart, searchable forever." },
-  { step: "05", title: "Claim files itself", body: "NHIS reimbursement request leaves the building the same day the patient does." },
+  { step: "05", title: "Claim files itself", body: "Reimbursement request leaves the building \u2014 in the right format for the right insurer \u2014 the same day the patient does." },
 ];
 
 export default function HospitalsPage() {
@@ -48,7 +48,7 @@ export default function HospitalsPage() {
               <div className="mt-12 grid grid-cols-12 gap-6">
                 <div className="col-span-12 md:col-span-7">
                   <p className="reveal reveal-delay-1 max-w-xl font-display text-lg leading-relaxed text-ink/80">
-                    Vedge replaces the folder trolley, the Excel workbook, the paper drug chart, and the third-party claims desk. Everything a Ghanaian hospital actually runs on, held in one record.
+                    Vedge replaces the folder trolley, the Excel workbook, the paper drug chart, and the third-party claims desk. Every insurance plan your patients carry, every ward your matron runs, every drug your pharmacist dispenses — held in one record.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
                     <Button href="/contact">Book a ward demo</Button>

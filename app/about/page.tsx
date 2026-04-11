@@ -6,7 +6,7 @@ import { KenteDivider } from "../_components/KenteDivider";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Why Vedge exists, who builds it, and what we believe about healthcare software in West Africa.",
+  description: "Why Vedge exists, who builds it, and what we believe about healthcare software in Africa.",
 };
 
 const principles = [
@@ -18,7 +18,7 @@ const principles = [
   {
     num: "ii.",
     title: "Local by default, never by afterthought.",
-    body: "We are built in Accra, priced in cedis, designed for NHIS. International hospitals can use Vedge, but they are the guest \u2014 not the customer we optimise for.",
+    body: "Built in Accra. Designed for the way African insurance actually works \u2014 NHIS and every other provider on top of it. International hospitals can use Vedge, but they are the guest, not the customer we optimise for.",
   },
   {
     num: "iii.",
@@ -28,15 +28,20 @@ const principles = [
   {
     num: "iv.",
     title: "Honest with the P&L.",
-    body: "If a hospital is on the wrong tier, we\u2019ll tell them. If we\u2019re not the right fit, we\u2019ll say so. Trust is a longer game than the quarter.",
+    body: "If a facility is on the wrong tier, we\u2019ll tell them. If we\u2019re not the right fit, we\u2019ll say so. Trust is a longer game than the quarter.",
   },
 ];
 
+// Deliberately minimal. Two lines, two types of people — that's the whole team.
 const team = [
-  { name: "The clinical council", role: "Doctors, nurses, pharmacists, and lab directors who advise on every release.", loc: "Accra · Kumasi · Lagos" },
-  { name: "The engineering bench", role: "A small team of senior engineers writing Spring Boot, React, and PostgreSQL.", loc: "Accra · Cape Coast · Remote" },
-  { name: "The design desk", role: "One design lead and two product designers obsessed with density and legibility.", loc: "Accra" },
-  { name: "The implementation crew", role: "Field deployment specialists who travel with a laptop and a network cable.", loc: "Across Ghana" },
+  {
+    name: "Experts in healthcare.",
+    role: "Clinicians, pharmacists, and lab directors who have actually stood on the floors we build for. They tell us when a screen won\u2019t survive a busy ward round \u2014 before we ship it.",
+  },
+  {
+    name: "Obsessed engineers.",
+    role: "The kind of people who don\u2019t ship something until it works \u2014 not until it compiles. The difference matters, and it\u2019s the only reason a night-shift nurse will actually use what we build.",
+  },
 ];
 
 export default function AboutPage() {
@@ -54,7 +59,7 @@ export default function AboutPage() {
                 We started Vedge because <span className="italic-display">no one else was going to.</span>
               </h1>
               <p className="reveal reveal-delay-1 mt-10 max-w-2xl font-display text-xl text-ink/80 leading-snug">
-                West African healthcare runs on paper folders, Excel workbooks, and good faith. The tools we inherited from Western vendors were not built for our wards, our rhythms, or our P&amp;L. So we built one that is.
+                African healthcare runs on paper folders, Excel workbooks, and good faith. The tools we inherited from Western vendors were not built for our wards, our rhythms, our insurance landscape, or our P&amp;L. So we built one that is.
               </p>
             </div>
           </div>
@@ -102,8 +107,11 @@ export default function AboutPage() {
         <Container>
           <Kicker>Who builds Vedge</Kicker>
           <h2 className="reveal mt-6 font-display text-display max-w-3xl">
-            A small team, on purpose. <span className="italic-display">A long bench.</span>
+            A small team. <span className="italic-display">Obsessed with making it work.</span>
           </h2>
+          <p className="reveal reveal-delay-1 mt-6 max-w-xl text-ink/70">
+            Two kinds of people. That&rsquo;s the whole team.
+          </p>
           <div className="mt-16 grid grid-cols-1 gap-10 md:grid-cols-2">
             {team.map((t, i) => (
               <div
@@ -111,9 +119,8 @@ export default function AboutPage() {
                 className="reveal border-t border-ink/20 pt-8"
                 style={{ transitionDelay: `${0.1 * i}s` }}
               >
-                <h3 className="font-display text-2xl">{t.name}</h3>
-                <p className="mt-3 text-ink/75">{t.role}</p>
-                <div className="mt-4 font-mono text-[10px] uppercase tracking-kicker text-ink/55">{t.loc}</div>
+                <h3 className="font-display text-3xl">{t.name}</h3>
+                <p className="mt-4 max-w-md text-ink/75 leading-relaxed">{t.role}</p>
               </div>
             ))}
           </div>

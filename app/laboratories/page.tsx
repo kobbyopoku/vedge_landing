@@ -58,7 +58,7 @@ export default function LaboratoriesPage() {
                 The bench, <span className="italic-display">the chart,</span> and <span className="italic-display">the Westgard rules</span> — all in one system.
               </h1>
               <p className="reveal reveal-delay-1 mt-10 max-w-2xl font-display text-lg leading-relaxed text-ink/80">
-                Vedge Laboratory is a full LIS built around the reality of West African diagnostics: a dozen instruments from six vendors, reference ranges that need to update as populations do, and reagent lots that must be traceable when audit season arrives.
+                Vedge Laboratory is a full LIS built around the reality of African diagnostics: a dozen instruments from six vendors, reference ranges that need to update as populations do, reagent lots traceable for audit season, and results routed back to whatever insurance plan paid for them.
               </p>
               <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
                 <Button href="/contact">Book a bench demo</Button>

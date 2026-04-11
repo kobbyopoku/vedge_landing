@@ -52,7 +52,7 @@ export const plans: Plan[] = [
       "Everything in Clinic",
       "Inpatient management & wards",
       "Medication Administration Record (MAR)",
-      "NHIS claims submission",
+      "Insurance claims (NHIS, private, corporate)",
       "Critical lab alerts",
     ],
   },
@@ -171,7 +171,7 @@ export const plans: Plan[] = [
       "Demand forecasting",
       "Expiry tracking",
       "Controlled-drug ledger",
-      "NHIS reimbursement",
+      "Insurance reimbursement (NHIS + private)",
     ],
   },
   {
@@ -202,7 +202,7 @@ export const plans: Plan[] = [
     includes: [
       "Appointment booking",
       "Lab results & prescriptions",
-      "NHIS verification",
+      "Insurance verification",
       "Teleconsult (pay per use)",
       "Family profiles",
     ],
@@ -230,7 +230,7 @@ export const verticals: {
   {
     key: "pharmacy",
     label: "Pharmacies",
-    blurb: "Counter operations, stock depth, and NHIS reimbursement on one screen.",
+    blurb: "Counter operations, stock depth, and insurance reimbursement on one screen.",
     href: "/pharmacies",
   },
   {

@@ -8,7 +8,7 @@ import { plans, formatPrice, annualPrice, type Vertical } from "../_data/plans";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Transparent pricing for hospitals, laboratories, pharmacies, and patients across West Africa. Starts at ₵149/month.",
+  description: "Transparent pricing for hospitals, laboratories, pharmacies, and patients across Africa. Starts at ₵149/month.",
 };
 
 // Groups and display labels for pricing segments.
@@ -56,7 +56,7 @@ export default function PricingPage() {
           <div className="mt-14 grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-7">
               <p className="reveal reveal-delay-1 max-w-xl font-display text-xl text-ink/80 leading-snug">
-                We didn&rsquo;t take a US EHR and put a price tag on it in GHS. We started with a Ghanaian P&amp;L and worked backwards. Everything here reflects that.
+                We didn&rsquo;t take a US EHR and put a price tag on it in GHS. We started with an African health system&rsquo;s P&amp;L and worked backwards. Everything here reflects that.
               </p>
             </div>
             <div className="col-span-12 md:col-span-5 md:border-l md:border-ink/15 md:pl-10">
@@ -198,7 +198,7 @@ export default function PricingPage() {
                 Not sure which plan fits? <span className="italic-display !text-sun">We&rsquo;ll tell you.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-6 max-w-xl text-bone/75">
-                A twenty-minute call. Bring the numbers that matter: beds, departments, monthly patients, NHIS share. We&rsquo;ll recommend the right tier — and tell you if you&rsquo;re on the wrong one a year from now.
+                A twenty-minute call. Bring the numbers that matter: beds, departments, monthly patients, insurance mix. We&rsquo;ll recommend the right tier — and tell you if you&rsquo;re on the wrong one a year from now.
               </p>
             </div>
             <div className="col-span-12 mt-8 md:col-span-4 md:mt-0 md:flex md:items-end md:justify-end">

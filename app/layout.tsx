@@ -26,32 +26,34 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Vedge — A hospital operating system built for West Africa",
+    default: "Vedge — A health operating system built for Africa",
     template: "%s · Vedge",
   },
   description:
-    "Vedge is an end-to-end healthcare platform for hospitals, clinics, laboratories, and pharmacies across Ghana and West Africa. Built for NHIS, designed for reality.",
+    "Vedge is an end-to-end health operating system for hospitals, clinics, laboratories, pharmacies, and patients across Africa. Built for every insurer your patients carry — NHIS, private, and corporate plans — and the way care actually runs on the floor.",
   keywords: [
-    "healthcare software Ghana",
+    "healthcare software Africa",
     "hospital management system",
-    "EHR West Africa",
-    "NHIS claims",
+    "EHR Africa",
+    "insurance claims",
+    "NHIS",
+    "private health insurance",
     "laboratory information system",
     "pharmacy management",
     "Vedge",
   ],
   authors: [{ name: "Vedge" }],
   openGraph: {
-    title: "Vedge — A hospital operating system built for West Africa",
+    title: "Vedge — A health operating system built for Africa",
     description:
-      "End-to-end healthcare software for hospitals, clinics, labs, and pharmacies across Ghana.",
+      "End-to-end health software for hospitals, clinics, labs, pharmacies, and patients across Africa.",
     type: "website",
     locale: "en_GH",
   },
   twitter: {
     card: "summary_large_image",
     title: "Vedge",
-    description: "A hospital operating system built for West Africa.",
+    description: "A health operating system built for Africa.",
   },
 };
 
