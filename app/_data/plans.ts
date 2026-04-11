@@ -1,9 +1,14 @@
 /**
- * Full pricing catalog — 11 plans across 4 facility verticals.
- * Mirrors the Vedge backend subscription catalog (V27 migration).
+ * Full pricing catalog — 10 plans across 3 verticals + 1 consumer app.
  *
- * Prices are in Ghanaian Cedis per month. Annual billing gets ~17% off,
- * computed at render time, so we only store the monthly figure here.
+ * **This file is the frontend mirror of the backend catalog seeded by
+ * vedge_backend/vedge-app/src/main/resources/db/migration/V27__subscription_module.sql.**
+ * Plan `code` values here must match the backend exactly. Prices are in
+ * Ghanaian Cedis per month. The annual figure is derived from the monthly
+ * using the same 20% discount the backend applies.
+ *
+ * If you need to change pricing, change the backend migration FIRST and
+ * then update this file to match. Never drift.
  */
 
 export type Vertical = "hospital" | "laboratory" | "pharmacy" | "patient";
@@ -20,14 +25,17 @@ export type Plan = {
   excludes?: string[];
 };
 
+/** Annual discount the backend applies. Keep in sync with V27's pricing math. */
+const ANNUAL_DISCOUNT = 0.80; // 20% off the sticker monthly × 12
+
 export const plans: Plan[] = [
   // ── Hospitals & clinics ─────────────────────────────────────────────
   {
     code: "HOSPITAL_CLINIC",
     vertical: "hospital",
-    name: "Clinic",
+    name: "Vedge Clinic",
     tagline: "For single-site clinics and outpatient practices.",
-    monthly: 349,
+    monthly: 1200,
     trialDays: 30,
     includes: [
       "Up to 10 staff",
@@ -41,9 +49,9 @@ export const plans: Plan[] = [
   {
     code: "HOSPITAL_TIER2",
     vertical: "hospital",
-    name: "Hospital",
+    name: "Vedge Hospital",
     tagline: "For mid-size hospitals with inpatient care.",
-    monthly: 1499,
+    monthly: 4500,
     trialDays: 30,
     badge: "Most popular",
     includes: [
@@ -59,9 +67,9 @@ export const plans: Plan[] = [
   {
     code: "HOSPITAL_HEALTH_SYSTEM",
     vertical: "hospital",
-    name: "Health System",
+    name: "Vedge Health System",
     tagline: "For multi-facility health systems.",
-    monthly: 3999,
+    monthly: 12000,
     trialDays: 30,
     includes: [
       "Up to 200 staff",
@@ -76,9 +84,9 @@ export const plans: Plan[] = [
   {
     code: "HOSPITAL_ENTERPRISE",
     vertical: "hospital",
-    name: "Enterprise",
+    name: "Vedge Enterprise",
     tagline: "For regional hospital groups and ministries.",
-    monthly: "custom",
+    monthly: 20000,
     trialDays: 30,
     includes: [
       "Unlimited staff",
@@ -91,49 +99,52 @@ export const plans: Plan[] = [
     ],
   },
 
-  // ── Laboratories ────────────────────────────────────────────────────
+  // ── Laboratories (freemium) ────────────────────────────────────────
   {
-    code: "LAB_STARTER",
+    code: "LAB_ESSENTIALS",
     vertical: "laboratory",
-    name: "Lab Starter",
-    tagline: "For standalone diagnostic labs.",
-    monthly: 449,
-    trialDays: 14,
+    name: "Vedge Lab Essentials",
+    tagline: "A free starting point for any lab that wants to digitise.",
+    monthly: 0,
+    trialDays: 0,
+    badge: "Free",
     includes: [
       "Up to 5 technicians",
       "Order entry & results",
-      "Hospital integrations (HL7)",
-      "Patient results portal",
+      "Basic patient results portal",
       "Community support",
+      "Upgrade any time",
     ],
   },
   {
     code: "LAB_PRO",
     vertical: "laboratory",
-    name: "Lab Pro",
-    tagline: "For busy reference labs running QC.",
-    monthly: 899,
+    name: "Vedge Lab Pro",
+    tagline: "For busy reference labs running real quality control.",
+    monthly: 1500,
     trialDays: 14,
     badge: "Most popular",
     includes: [
       "Up to 20 technicians",
-      "Everything in Lab Starter",
+      "Everything in Essentials",
       "Levey-Jennings QC charts",
       "Reagent inventory & lot tracking",
       "Reference range library",
       "Test panel builder",
+      "Hospital HL7 integrations",
     ],
   },
   {
-    code: "LAB_DIRECTOR",
+    code: "LAB_ENTERPRISE",
     vertical: "laboratory",
-    name: "Lab Director",
-    tagline: "For multi-branch clinical labs.",
-    monthly: 1899,
+    name: "Vedge Lab Accredited",
+    tagline: "For accredited reference labs and multi-branch operators.",
+    monthly: 4500,
     trialDays: 14,
     includes: [
       "Unlimited technicians",
-      "Everything in Lab Pro",
+      "Everything in Pro",
+      "ISO 15189 accreditation toolkit",
       "Director dashboard & KPIs",
       "Cross-branch analytics",
       "Instrument interfaces",
@@ -141,49 +152,65 @@ export const plans: Plan[] = [
     ],
   },
 
-  // ── Pharmacies ──────────────────────────────────────────────────────
+  // ── Pharmacies (freemium) ──────────────────────────────────────────
   {
-    code: "PHARMACY_STARTER",
+    code: "PHARMACY_BASIC",
     vertical: "pharmacy",
-    name: "Pharmacy Starter",
-    tagline: "For single-counter community pharmacies.",
-    monthly: 149,
-    trialDays: 14,
+    name: "Vedge Pharmacy Basic",
+    tagline: "A free base tier for any community pharmacy in Africa.",
+    monthly: 0,
+    trialDays: 0,
+    badge: "Free",
     includes: [
       "1 counter",
-      "POS & inventory",
+      "POS & basic inventory",
       "Prescription filling",
-      "Supplier orders",
+      "Listed in the Vedge patient app",
       "Community support",
     ],
   },
   {
-    code: "PHARMACY_GROWTH",
+    code: "PHARMACY_STARTER",
     vertical: "pharmacy",
-    name: "Pharmacy Growth",
-    tagline: "For pharmacies that need inventory analytics.",
+    name: "Vedge Pharmacy Recommended Starter",
+    tagline: "Appear when Vedge doctors prescribe nearby.",
+    monthly: 149,
+    trialDays: 14,
+    badge: "Recommended",
+    includes: [
+      "Up to 2 counters",
+      "Everything in Basic",
+      "Appears in patient app for prescriptions",
+      "Demand forecasting",
+      "Supplier orders",
+    ],
+  },
+  {
+    code: "PHARMACY_PLUS",
+    vertical: "pharmacy",
+    name: "Vedge Pharmacy Recommended Plus",
+    tagline: "For pharmacies that need inventory analytics and insurance claims.",
     monthly: 349,
     trialDays: 14,
-    badge: "Most popular",
     includes: [
-      "Up to 3 counters",
-      "Everything in Starter",
-      "Demand forecasting",
+      "Up to 5 counters",
+      "Everything in Recommended Starter",
       "Expiry tracking",
       "Controlled-drug ledger",
       "Insurance reimbursement (NHIS + private)",
+      "Multi-supplier reconciliation",
     ],
   },
   {
     code: "PHARMACY_CHAIN",
     vertical: "pharmacy",
-    name: "Pharmacy Chain",
+    name: "Vedge Pharmacy Chain",
     tagline: "For multi-branch pharmacy operators.",
     monthly: 699,
     trialDays: 14,
     includes: [
       "Unlimited counters",
-      "Everything in Growth",
+      "Everything in Recommended Plus",
       "Central warehouse",
       "Inter-branch transfers",
       "Multi-site reporting",
@@ -192,13 +219,19 @@ export const plans: Plan[] = [
   },
 
   // ── Patient app ─────────────────────────────────────────────────────
+  // Note: the backend does NOT have a row for this in subscription_plans —
+  // the patient mobile app is a consumer product, not a facility plan.
+  // We keep it in the catalog for the marketing site's "four verticals"
+  // narrative, flagged with a sentinel code of PATIENT_APP so it's obvious
+  // it isn't a billed plan.
   {
     code: "PATIENT_APP",
     vertical: "patient",
     name: "Vedge for Patients",
-    tagline: "The mobile companion for anyone receiving care on Vedge.",
+    tagline: "The free mobile app that connects patients to every facility on Vedge.",
     monthly: 0,
-    trialDays: 7,
+    trialDays: 0,
+    badge: "Free",
     includes: [
       "Appointment booking",
       "Lab results & prescriptions",
@@ -218,25 +251,25 @@ export const verticals: {
   {
     key: "hospital",
     label: "Hospitals & clinics",
-    blurb: "Inpatient, outpatient, pharmacy, and claims — one chart, one record.",
+    blurb: "Inpatient, outpatient, pharmacy, and insurance claims — one chart, one record.",
     href: "/hospitals",
   },
   {
     key: "laboratory",
     label: "Laboratories",
-    blurb: "Order to result with Levey-Jennings QC and reagent tracking built in.",
+    blurb: "Starts free. Levey-Jennings QC and reagent tracking on Pro.",
     href: "/laboratories",
   },
   {
     key: "pharmacy",
     label: "Pharmacies",
-    blurb: "Counter operations, stock depth, and insurance reimbursement on one screen.",
+    blurb: "Free base tier. Paid Recommended tier puts you in the prescribing doctor's app.",
     href: "/pharmacies",
   },
   {
     key: "patient",
     label: "Patients",
-    blurb: "A free mobile app that keeps patients connected to their care team.",
+    blurb: "A free mobile app that keeps patients connected to every facility on Vedge.",
     href: "/pricing#patient",
   },
 ];
@@ -248,8 +281,11 @@ export function formatPrice(amount: number | "custom"): string {
   return `₵${amount.toLocaleString("en-GH")}`;
 }
 
-/** Annual price with 17% discount, rounded to nearest 10 cedis. */
+/**
+ * Annual price: 20% off the sticker monthly × 12, rounded to the nearest cedi.
+ * Matches the backend's V27 seed math.
+ */
 export function annualPrice(monthly: number | "custom"): number | "custom" {
   if (monthly === "custom" || monthly === 0) return monthly;
-  return Math.round((monthly * 12 * 0.83) / 10) * 10;
+  return Math.round(monthly * 12 * ANNUAL_DISCOUNT);
 }

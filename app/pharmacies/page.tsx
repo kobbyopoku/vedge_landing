@@ -62,45 +62,62 @@ const flywheel = [
   { num: "04", title: "They pick up, you dispense", body: "Scan, counsel, close. If the patient is insured — NHIS or otherwise — the claim files itself in the right format for the right provider. Revenue and reimbursement logged in one motion." },
 ];
 
-// Tier comparison — mirrors GTM: Free seeds density, paid tier unlocks visibility.
+// Four-tier comparison — mirrors the backend V27 pharmacy catalog exactly:
+// PHARMACY_BASIC (free) → PHARMACY_STARTER (Recommended) → PHARMACY_PLUS → PHARMACY_CHAIN.
+// The GTM plays out on the tier badges: Basic is free to seed network density,
+// Recommended is the first paid tier that unlocks visibility in the prescribing
+// doctor's patient-app queue, and Plus adds inventory analytics + insurance.
 const tierHighlights = [
   {
-    tier: "Starter",
-    price: "₵149/mo",
-    trial: "14-day trial",
-    color: "ink",
+    tier: "Basic",
+    price: "Free",
+    trial: "No trial needed",
+    color: "forest",
+    badge: "Free",
     items: [
       "1 counter",
       "POS & basic inventory",
       "Prescription fill",
-      "Supplier orders",
+      "Listed in the patient app",
       "Community support",
     ],
   },
   {
-    tier: "Growth",
-    price: "₵349/mo",
+    tier: "Recommended Starter",
+    price: "₵149/mo",
     trial: "14-day trial",
     color: "clay",
-    badge: "Recommended",
+    badge: "Most common",
     items: [
-      "Up to 3 counters",
-      "Everything in Starter",
+      "Up to 2 counters",
+      "Everything in Basic",
+      "Appears when Vedge doctors prescribe nearby",
       "Demand forecasting",
+      "Supplier orders",
+    ],
+  },
+  {
+    tier: "Recommended Plus",
+    price: "₵349/mo",
+    trial: "14-day trial",
+    color: "ink",
+    items: [
+      "Up to 5 counters",
+      "Everything in Starter",
       "Expiry tracking",
       "Controlled-drug ledger",
       "Insurance reimbursement (NHIS + private)",
-      "Appears in patient app when doctors prescribe",
+      "Multi-supplier reconciliation",
     ],
   },
   {
     tier: "Chain",
     price: "₵699/mo",
     trial: "14-day trial",
-    color: "forest",
+    color: "ink",
     items: [
       "Unlimited counters",
-      "Everything in Growth",
+      "Everything in Plus",
       "Central warehouse",
       "Inter-branch transfers",
       "Multi-site reporting",
@@ -138,8 +155,8 @@ export default function PharmaciesPage() {
                   <div className="reveal reveal-delay-2 grid grid-cols-2 gap-y-8">
                     <StatBlock value="8" label="Core surfaces" />
                     <StatBlock value="14d" label="Free trial" />
-                    <StatBlock value="3" label="Pricing tiers" />
-                    <StatBlock value="₵149" label="Starts at" />
+                    <StatBlock value="4" label="Pricing tiers" />
+                    <StatBlock value="Free" label="Starts at" />
                   </div>
                 </div>
               </div>
@@ -220,15 +237,15 @@ export default function PharmaciesPage() {
       {/* ═══════════════ TIER COMPARISON ═══════════════ */}
       <section className="py-24 md:py-32">
         <Container>
-          <Kicker>Three tiers</Kicker>
+          <Kicker>Four tiers</Kicker>
           <h2 className="reveal mt-6 font-display text-display max-w-3xl">
-            Start small. <span className="italic-display">Scale by counter.</span>
+            Start free. <span className="italic-display">Scale by counter.</span>
           </h2>
           <p className="reveal reveal-delay-1 mt-6 max-w-xl text-ink/70">
             Every tier includes the core POS and inventory. Upgrades unlock discovery, controlled-drug tracking, and multi-branch reporting — in that order.
           </p>
 
-          <div className="mt-16 grid gap-6 md:grid-cols-3">
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {tierHighlights.map((t, i) => {
               const borderColor =
                 t.color === "clay"

@@ -58,7 +58,10 @@ export function Footer() {
               </p>
               <ul className="mt-6 space-y-3">
                 {col.links.map((link) => (
-                  <li key={link.href}>
+                  // Key on label (which is unique within a column) rather than
+                  // href — the Offices column has three entries all linking to
+                  // /contact, which collided when href was the key.
+                  <li key={link.label}>
                     <Link
                       href={link.href}
                       className="link-grow font-display text-lg text-bone/90 hover:text-bone"

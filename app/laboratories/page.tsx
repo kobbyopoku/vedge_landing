@@ -74,7 +74,7 @@ export default function LaboratoriesPage() {
         <Container className="py-16">
           <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4">
             <div className="reveal"><StatBlock value="6" label="Layers" note="From order entry to sign-out." /></div>
-            <div className="reveal reveal-delay-1"><StatBlock value="3" label="Pricing tiers" note="Starter, Pro, Director." /></div>
+            <div className="reveal reveal-delay-1"><StatBlock value="3" label="Pricing tiers" note="Essentials free. Pro and Accredited paid." /></div>
             <div className="reveal reveal-delay-2"><StatBlock value="14d" label="Trial" note="Bring your own samples, we&rsquo;ll load them." /></div>
             <div className="reveal reveal-delay-3"><StatBlock value="QC" label="Levey-Jennings" note="Built in from day one, on every tier." /></div>
           </div>

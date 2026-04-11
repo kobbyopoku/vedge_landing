@@ -60,7 +60,7 @@ export default function HospitalsPage() {
                     <StatBlock value="9" label="Core modules" />
                     <StatBlock value="30d" label="Free trial" />
                     <StatBlock value="4" label="Pricing tiers" />
-                    <StatBlock value="₵349" label="Starts at" />
+                    <StatBlock value="₵1,200" label="Starts at" />
                   </div>
                 </div>
               </div>

@@ -8,7 +8,7 @@ import { plans, formatPrice, annualPrice, type Vertical } from "../_data/plans";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Transparent pricing for hospitals, laboratories, pharmacies, and patients across Africa. Starts at ₵149/month.",
+  description: "Transparent pricing for hospitals, laboratories, pharmacies, and patients across Africa. Free base tiers for labs and pharmacies. Hospitals from ₵1,200/month.",
 };
 
 // Groups and display labels for pricing segments.
@@ -24,14 +24,14 @@ const segments: { key: Vertical; title: string; kicker: string; note: string; an
     key: "laboratory",
     title: "Laboratories",
     kicker: "For the bench",
-    note: "QC, reagent tracking, and instrument interfaces are included in Pro and above. Starter is priced for standalone labs starting out.",
+    note: "Essentials is free forever. Levey-Jennings QC, reagent tracking, and instrument interfaces unlock at Pro. Accredited tier adds the full ISO 15189 toolkit.",
     anchor: "lab",
   },
   {
     key: "pharmacy",
     title: "Pharmacies",
     kicker: "For the counter",
-    note: "POS and basic inventory from ₵149. Bring your own barcode scanner; we support most common cradles out of the box.",
+    note: "A free base tier for every community pharmacy in Africa, plus paid Recommended tiers that plug you into the prescribing doctor's app. Bring your own barcode scanner.",
     anchor: "pharmacy",
   },
   {
@@ -63,7 +63,7 @@ export default function PricingPage() {
               <dl className="reveal reveal-delay-2 grid grid-cols-2 gap-y-6">
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Annual saving</dt>
-                  <dd className="mt-1 font-display text-3xl">17%</dd>
+                  <dd className="mt-1 font-display text-3xl">20%</dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Founding customer</dt>

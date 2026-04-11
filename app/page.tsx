@@ -41,7 +41,7 @@ const features = [
   {
     num: "04",
     title: "Pricing that respects an African P&L.",
-    body: "Plans start at ₵149 a month. 30-day trials. No forced annual contracts. Founding customer programme for the first 15 paying facilities — 40% off the first year.",
+    body: "Free base tiers for every lab and every pharmacy in Africa. Hospitals start at ₵1,200/month. 30-day hospital trials, 14-day lab trials. Founding customer programme for the first 15 paying facilities — 40% off the first year.",
   },
 ];
 
@@ -85,7 +85,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Starts at</div>
-                      <div className="mt-1 font-display text-2xl">₵149<span className="text-sm text-ink/60">/mo</span></div>
+                      <div className="mt-1 font-display text-2xl">Free</div>
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Trial</div>
@@ -206,8 +206,8 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4">
             <div className="reveal"><StatBlock value="11" label="Pricing tiers" note="Across four verticals, meeting you where you are." /></div>
             <div className="reveal reveal-delay-1"><StatBlock value="30d" label="Hospital trial" note="Zero credit card. Zero auto-charge. Cancel any time." /></div>
-            <div className="reveal reveal-delay-2"><StatBlock value="17%" label="Annual saving" note="Save when you commit to a year. Founding customers save 40%." /></div>
-            <div className="reveal reveal-delay-3"><StatBlock value="₵149" label="Starting price" note="Per month, for a single-counter pharmacy. Scaling from there." /></div>
+            <div className="reveal reveal-delay-2"><StatBlock value="20%" label="Annual saving" note="Save when you commit to a year. Founding customers save 40%." /></div>
+            <div className="reveal reveal-delay-3"><StatBlock value="Free" label="Starting price" note="Labs and pharmacies start free. Hospitals from ₵1,200/month." /></div>
           </div>
         </Container>
       </section>
