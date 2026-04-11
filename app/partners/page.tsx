@@ -6,7 +6,7 @@ import { DesignPartnerForm } from "./DesignPartnerForm";
 
 export const metadata: Metadata = {
   title: "Design partners",
-  description: "A twelve-month free programme for fifteen African facilities willing to shape Vedge from the inside.",
+  description: "A twelve-month free programme for forty African facilities — ten hospitals, ten clinics, ten laboratories, and ten pharmacies — willing to shape Vedge from the inside.",
 };
 
 const benefits = [
@@ -61,10 +61,10 @@ const expectations = [
 ];
 
 const whoWeNeed = [
-  { label: "Hospitals", target: "5", detail: "At least one each from: district hospital, private group, mission-run, teaching, speciality (women\u2019s or paediatric)." },
-  { label: "Clinics", target: "3", detail: "Out-patient clinics with at least two clinicians, one of whom is willing to run the digital chart themselves." },
-  { label: "Laboratories", target: "4", detail: "A mix of standalone diagnostic labs and hospital-attached reference labs, ideally running at least one automated analyser." },
-  { label: "Pharmacies", target: "3", detail: "A single-counter community pharmacy, a growing 2-3 counter operator, and one chain of five or more branches." },
+  { label: "Hospitals", target: "10", detail: "A deliberate mix: district hospitals, private groups, mission-run, teaching, and speciality centres (women\u2019s, paediatric, oncology). Ideally at least one of each archetype." },
+  { label: "Clinics", target: "10", detail: "Out-patient clinics with at least two clinicians \u2014 one of whom is willing to run the digital chart themselves. Urban and rural, public and private." },
+  { label: "Laboratories", target: "10", detail: "A blend of standalone diagnostic labs and hospital-attached reference labs. At least half should be running automated analysers, and QC workflows must be real, not theoretical." },
+  { label: "Pharmacies", target: "10", detail: "Single-counter community pharmacies, growing 2-3 counter operators, and at least two chains of five or more branches. Mix of urban, peri-urban, and rural." },
 ];
 
 export default function PartnersPage() {
@@ -80,19 +80,19 @@ export default function PartnersPage() {
             </div>
             <div className="col-span-12 md:col-span-10">
               <h1 className="reveal font-display text-hero">
-                Fifteen facilities. <br />
-                <span className="italic-display">Twelve months.</span> Zero invoice.
+                Forty facilities. <span className="italic-display">Ten of each.</span> <br />
+                Twelve months. <span className="italic-display">Zero invoice.</span>
               </h1>
               <p className="reveal reveal-delay-1 mt-10 max-w-2xl font-display text-xl text-ink/80 leading-snug">
-                The Vedge Design Partner programme. A twelve-month free deployment for fifteen African healthcare facilities willing to build the product with us, on camera, on the ward, on the record.
+                The Vedge Design Partner programme. A twelve-month free deployment for forty African healthcare facilities — ten hospitals, ten clinics, ten laboratories, ten pharmacies — willing to build the product with us, on camera, on the ward, on the record.
               </p>
 
               {/* The shape of the deal, in four numbers */}
               <dl className="reveal reveal-delay-2 mt-14 grid grid-cols-2 gap-y-10 border-t border-ink/20 pt-10 md:grid-cols-4">
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Partners</dt>
-                  <dd className="mt-2 font-display text-4xl">15</dd>
-                  <p className="mt-2 max-w-[12rem] text-xs text-ink/65">Across hospitals, clinics, labs, and pharmacies.</p>
+                  <dd className="mt-2 font-display text-4xl">40</dd>
+                  <p className="mt-2 max-w-[12rem] text-xs text-ink/65">Ten each across hospitals, clinics, labs, and pharmacies.</p>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Duration</dt>
@@ -190,7 +190,7 @@ export default function PartnersPage() {
         <Container>
           <Kicker>Who we need</Kicker>
           <h2 className="reveal mt-6 font-display text-display max-w-3xl">
-            The shape of the <span className="italic-display">ideal fifteen.</span>
+            The shape of the <span className="italic-display">ideal forty.</span>
           </h2>
           <p className="reveal reveal-delay-1 mt-6 max-w-xl text-ink/70">
             Design partners aren&rsquo;t first-come, first-served. We want a deliberate mix that gives us signal across verticals, facility sizes, and ownership models.
@@ -224,7 +224,7 @@ export default function PartnersPage() {
                 Tell us about your <span className="italic-display !text-sun">facility.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-6 max-w-sm text-bone/75">
-                Fifteen slots. Rolling basis. We read every application within two working days and reply to every applicant — yes or no — before the end of the same week.
+                Forty slots — ten per vertical. Rolling basis. We read every application within two working days and reply to every applicant — yes or no — before the end of the same week.
               </p>
 
               <div className="mt-14 border-t border-bone/15 pt-6">

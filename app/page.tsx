@@ -41,7 +41,7 @@ const features = [
   {
     num: "04",
     title: "Pricing that respects an African P&L.",
-    body: "Plans start at ₵149 a month. 30-day trials. No forced annual contracts. Founding customer programme for the first 15 facilities — 40% off the first year.",
+    body: "Plans start at ₵149 a month. 30-day trials. No forced annual contracts. Founding customer programme for the first 15 paying facilities — 40% off the first year.",
   },
 ];
 
@@ -220,10 +220,10 @@ export default function HomePage() {
             <div className="col-span-12 md:col-span-7">
               <Kicker className="!text-bone">Design partner programme · 2026</Kicker>
               <h2 id="partners-heading" className="reveal mt-8 font-display text-hero text-bone">
-                Fifteen facilities. <span className="italic-display !text-sun">One year. No invoice.</span>
+                Forty facilities. <span className="italic-display !text-sun">Ten of each. One year. No invoice.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-8 max-w-xl font-display text-xl text-bone/90 leading-snug">
-                We are taking fifteen African hospitals, clinics, labs, and pharmacies into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
+                We are taking forty African facilities — ten hospitals, ten clinics, ten laboratories, ten pharmacies — into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
               </p>
               <ul className="reveal reveal-delay-2 mt-10 space-y-3">
                 {[
@@ -253,8 +253,8 @@ export default function HomePage() {
               <div className="reveal reveal-delay-2 flex flex-col gap-12">
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Partners</div>
-                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">15</div>
-                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Deliberate mix across hospitals, clinics, labs, and pharmacies.</div>
+                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">40</div>
+                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Ten each across hospitals, clinics, labs, and pharmacies.</div>
                 </div>
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Duration</div>
