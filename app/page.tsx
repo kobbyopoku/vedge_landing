@@ -6,6 +6,8 @@ import { StatBlock } from "./_components/StatBlock";
 import { KenteDivider } from "./_components/KenteDivider";
 import { verticals } from "./_data/plans";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
+
 // Feature chips used in the marquee — the real product surfaces we shipped.
 const marqueeChips = [
   "Inpatient Wards",
@@ -69,8 +71,11 @@ export default function HomePage() {
                     Vedge is the records platform hospitals, clinics, laboratories, and pharmacies across Africa use to run wards, file insurance claims with every provider their patients carry, dispense medication, and stay in sync — whether the lights are on or off.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap items-center gap-4">
-                    <Button href="/contact">Book a demo</Button>
+                    <Button href={`${appUrl}/register`}>Start free</Button>
                     <Button href="/pricing" variant="ghost">See pricing</Button>
+                    <a href="/contact" className="font-mono text-[11px] uppercase tracking-kicker text-ink/60 hover:text-ink transition-colors ml-2">
+                      or book a demo →
+                    </a>
                   </div>
                 </div>
                 <div className="col-span-12 mt-10 md:col-span-5 md:mt-0 md:border-l md:border-ink/15 md:pl-8">

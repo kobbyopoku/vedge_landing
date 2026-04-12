@@ -4,7 +4,10 @@ import { Container } from "../_components/Container";
 import { Kicker } from "../_components/Kicker";
 import { Button } from "../_components/Button";
 import { KenteDivider } from "../_components/KenteDivider";
-import { plans, formatPrice, annualPrice, type Vertical } from "../_data/plans";
+import { formatPrice, annualPrice, type Vertical } from "../_data/plans";
+import { getPlans } from "../_lib/api";
+
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -43,7 +46,9 @@ const segments: { key: Vertical; title: string; kicker: string; note: string; an
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const plans = await getPlans();
+
   return (
     <>
       {/* ═══════════════ HERO ═══════════════ */}
@@ -166,12 +171,21 @@ export default function PricingPage() {
                                 ))}
                               </ul>
                               <div className="mt-6">
-                                <Link
-                                  href="/contact"
-                                  className="link-grow font-mono text-[11px] uppercase tracking-kicker text-clay"
-                                >
-                                  {plan.monthly === "custom" ? "Request a quote" : "Start trial"}
-                                </Link>
+                                {plan.monthly === "custom" ? (
+                                  <Link
+                                    href="/contact"
+                                    className="link-grow font-mono text-[11px] uppercase tracking-kicker text-clay"
+                                  >
+                                    Request a quote
+                                  </Link>
+                                ) : (
+                                  <a
+                                    href={`${appUrl}/register`}
+                                    className="link-grow font-mono text-[11px] uppercase tracking-kicker text-clay"
+                                  >
+                                    Start free trial →
+                                  </a>
+                                )}
                               </div>
                             </div>
                           </div>

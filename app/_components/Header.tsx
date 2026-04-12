@@ -9,6 +9,8 @@ const nav = [
   { label: "Partners", href: "/partners" },
 ];
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
+
 /**
  * Editorial header — thin top rule, three-column lockup (logo / nav / CTA).
  * On mobile the nav collapses to a CSS-only details/summary disclosure so we
@@ -35,14 +37,20 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Link
-            href="/contact"
-            className="group inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-kicker text-ink"
+        <div className="hidden items-center gap-6 md:flex">
+          <a
+            href={`${appUrl}/login`}
+            className="font-mono text-[11px] uppercase tracking-kicker text-ink/70 hover:text-ink transition-colors"
           >
-            Book a demo
-            <span className="inline-block h-px w-8 bg-ink transition-all duration-500 group-hover:w-12" />
-          </Link>
+            Sign in
+          </a>
+          <a
+            href={`${appUrl}/register`}
+            className="group inline-flex items-center gap-2 rounded-full bg-forest px-4 py-2 font-mono text-[11px] uppercase tracking-kicker text-bone transition-colors hover:bg-forest/90"
+          >
+            Start free
+            <span className="inline-block h-px w-6 bg-bone/60 transition-all duration-500 group-hover:w-10" />
+          </a>
         </div>
 
         {/* Mobile disclosure — CSS-only via <details> */}
@@ -60,12 +68,18 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              className="mt-2 border-t border-ink/15 pt-3 font-mono text-[11px] uppercase tracking-kicker text-clay"
+            <a
+              href={`${appUrl}/login`}
+              className="mt-2 border-t border-ink/15 pt-3 font-mono text-[11px] uppercase tracking-kicker text-ink/70"
             >
-              Book a demo →
-            </Link>
+              Sign in
+            </a>
+            <a
+              href={`${appUrl}/register`}
+              className="font-mono text-[11px] uppercase tracking-kicker text-clay"
+            >
+              Start free →
+            </a>
           </div>
         </details>
       </Container>
