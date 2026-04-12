@@ -59,8 +59,12 @@ function toPlan(api: ApiPlan): Plan | null {
 
 /** Fetch plans from the backend API with ISR (5-minute revalidation). */
 async function fetchPlans(): Promise<Plan[]> {
+  const isDev = process.env.NODE_ENV === "development";
   const res = await fetch(`${API_URL}/api/public/plans`, {
-    next: { revalidate: 300 },
+    // In dev: no-store forces a fresh fetch every request.
+    // In production: ISR revalidates every 5 minutes.
+    cache: isDev ? "no-store" : undefined,
+    ...(!isDev && { next: { revalidate: 300 } }),
   });
   if (!res.ok) throw new Error(`Failed to fetch plans: ${res.status}`);
   const apiPlans: ApiPlan[] = await res.json();
