@@ -1,26 +1,17 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import crypto from "crypto";
 
 /**
  * Design-partner application handler.
  *
  * This route accepts a JSON body from `DesignPartnerForm`, validates the
- * required fields, and persists one record per line to a JSONL file at
- * `data/design-partners.jsonl` (gitignored).
+ * required fields client-side-style (fast feedback, cheap filter), and then
+ * proxies the submission to the Vedge backend's public
+ * `design-partner-applications` endpoint.
  *
- * ─── STORAGE NOTES ──────────────────────────────────────────────────────
- * JSONL on the local filesystem is a deliberate dev-time choice: it works
- * with zero infrastructure and lets us ship the marketing site immediately.
- *
- * On Vercel (or any serverless host) the filesystem is ephemeral and
- * read-only in most locations, so this will not persist across deploys.
- * BEFORE LAUNCH, replace the file-append block with a write to a real
- * backend — Firebase, Supabase, Neon, Resend, Formspree, or a tiny KV
- * store. The rest of this handler (shape, validation, response contract)
- * can stay the same.
- * ───────────────────────────────────────────────────────────────────────
+ * The backend owns persistence, rate-limiting, and duplicate detection. This
+ * handler is a thin translator: snake_case form payload -> camelCase API
+ * payload, and backend status codes -> the `{ ok, id }` / `{ error }` shape
+ * the form already expects.
  */
 
 // Shape of an application — matches the form field names.
@@ -55,6 +46,7 @@ const REQUIRED_FIELDS: (keyof DesignPartnerApplication)[] = [
 
 const MAX_FIELD_LENGTH = 2000;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BACKEND_TIMEOUT_MS = 10_000;
 
 function validate(body: unknown): { ok: true; data: DesignPartnerApplication } | { ok: false; error: string } {
   if (typeof body !== "object" || body === null) {
@@ -87,7 +79,28 @@ function validate(body: unknown): { ok: true; data: DesignPartnerApplication } |
     return acc;
   }, {}) as unknown as DesignPartnerApplication;
 
+  // Preserve the agree_terms signal through validation so the proxy layer
+  // can forward it as a boolean to the backend.
+  data.agree_terms = app.agree_terms === "on" ? "on" : undefined;
+
   return { ok: true, data };
+}
+
+function toBackendPayload(data: DesignPartnerApplication) {
+  return {
+    name: data.name,
+    role: data.role,
+    email: data.email,
+    phone: data.phone,
+    facility: data.facility,
+    facilityType: data.facility_type,
+    country: data.country,
+    teamSize: data.team_size,
+    currentSystem: data.current_system,
+    problem: data.problem,
+    whyYou: data.why_you,
+    agreeTerms: data.agree_terms === "on",
+  };
 }
 
 export async function POST(request: Request) {
@@ -103,32 +116,73 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
-  const lead = {
-    id: crypto.randomUUID(),
-    submittedAt: new Date().toISOString(),
-    status: "new" as const,
-    ...result.data,
-  };
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8050";
+  const backendUrl = `${apiBase}/api/public/design-partner-applications`;
 
-  // Persist to JSONL — one application per line. Easy to tail, easy to grep,
-  // easy to import into any tool later.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
+
+  let backendResponse: Response;
   try {
-    const dataDir = path.join(process.cwd(), "data");
-    await fs.mkdir(dataDir, { recursive: true });
-    const file = path.join(dataDir, "design-partners.jsonl");
-    await fs.appendFile(file, JSON.stringify(lead) + "\n", "utf8");
+    backendResponse = await fetch(backendUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toBackendPayload(result.data)),
+      signal: controller.signal,
+    });
   } catch (error) {
-    console.error("[vedge-landing] Failed to persist design partner lead", error);
+    clearTimeout(timeout);
+    console.error("[vedge-landing] Backend request failed", error);
     return NextResponse.json(
       { error: "We could not save your application. Please try again." },
       { status: 500 }
     );
+  } finally {
+    clearTimeout(timeout);
   }
 
-  // Always log so you can see applications in `npm run dev` output.
-  console.log(
-    `[vedge-landing] Design partner lead: ${lead.facility} (${lead.facility_type}) — ${lead.email}`
-  );
+  // Parse JSON defensively — backend may return non-JSON on some error paths.
+  let payload: unknown = null;
+  try {
+    payload = await backendResponse.json();
+  } catch {
+    payload = null;
+  }
 
-  return NextResponse.json({ ok: true, id: lead.id });
+  if (backendResponse.status === 201) {
+    const id =
+      payload && typeof payload === "object" && "id" in payload
+        ? (payload as { id: unknown }).id
+        : undefined;
+
+    console.log(
+      `[vedge-landing] Design partner lead: ${result.data.facility} (${result.data.facility_type}) — ${result.data.email} [id=${id ?? "unknown"}]`
+    );
+
+    return NextResponse.json({ ok: true, id });
+  }
+
+  if (backendResponse.status === 400) {
+    const message =
+      payload && typeof payload === "object" && "error" in payload && typeof (payload as { error: unknown }).error === "string"
+        ? (payload as { error: string }).error
+        : "Your application could not be accepted. Please review the fields and try again.";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  if (backendResponse.status === 429) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in about an hour." },
+      { status: 429 }
+    );
+  }
+
+  console.error(
+    `[vedge-landing] Backend returned unexpected status ${backendResponse.status}`,
+    payload
+  );
+  return NextResponse.json(
+    { error: "We could not save your application. Please try again." },
+    { status: 500 }
+  );
 }
