@@ -11,7 +11,7 @@
  * then update this file to match. Never drift.
  */
 
-export type Vertical = "hospital" | "laboratory" | "pharmacy" | "patient";
+export type Vertical = "hospital" | "laboratory" | "pharmacy" | "patient" | "diagnostic_center";
 
 export type Plan = {
   code: string;
@@ -218,12 +218,67 @@ export const plans: Plan[] = [
     ],
   },
 
+  // ── Diagnostic / Radiology centres ────────────────────────────────
+  {
+    code: "DIAGNOSTIC_STARTER",
+    vertical: "diagnostic_center",
+    name: "Vedge Diagnostic Starter",
+    tagline: "For standalone imaging centres running 10-30 studies a day.",
+    monthly: 1200,
+    trialDays: 14,
+    badge: "14-day trial",
+    includes: [
+      "Up to 10 staff",
+      "CT, X-ray, Ultrasound",
+      "Walk-in intake & modality worklist",
+      "Structured report templates",
+      "Branded PDF reports",
+      "Patient share links (WhatsApp / email)",
+      "Cash, MoMo & NHIS payments",
+    ],
+  },
+  {
+    code: "DIAGNOSTIC_PRO",
+    vertical: "diagnostic_center",
+    name: "Vedge Diagnostic Pro",
+    tagline: "For busy multi-modality centres processing 30-100 studies a day.",
+    monthly: 3500,
+    trialDays: 14,
+    badge: "Most popular",
+    includes: [
+      "Up to 30 staff",
+      "All modalities: CT, MRI, X-ray, Ultrasound, Mammography, ECG",
+      "Everything in Starter",
+      "DICOM web viewer + PACS integration",
+      "Critical-finding page to referrer",
+      "Private insurance billing & pre-authorisation",
+      "À la carte + package pricing",
+    ],
+  },
+  {
+    code: "DIAGNOSTIC_ENTERPRISE",
+    vertical: "diagnostic_center",
+    name: "Vedge Diagnostic Enterprise",
+    tagline: "For imaging groups, hospital radiology departments, and teleradiology networks.",
+    monthly: 8000,
+    trialDays: 14,
+    includes: [
+      "Unlimited staff",
+      "Everything in Pro",
+      "Multi-site & teleradiology routing",
+      "Subspecialty worklist routing",
+      "HL7 outbound feeds to hospital EMRs",
+      "Director dashboard & KPI reporting",
+      "Priority support + named account engineer",
+    ],
+  },
+
   // ── Patient app ─────────────────────────────────────────────────────
   // Note: the backend does NOT have a row for this in subscription_plans —
   // the patient mobile app is a consumer product, not a facility plan.
-  // We keep it in the catalog for the marketing site's "four verticals"
-  // narrative, flagged with a sentinel code of PATIENT_APP so it's obvious
-  // it isn't a billed plan.
+  // We keep it in the catalog for the marketing site's verticals narrative,
+  // flagged with a sentinel code of PATIENT_APP so it's obvious it isn't a
+  // billed plan.
   {
     code: "PATIENT_APP",
     vertical: "patient",
@@ -271,6 +326,12 @@ export const verticals: {
     label: "Patients",
     blurb: "A free mobile app that keeps patients connected to every facility on Vedge.",
     href: "/companions/vedge-patient",
+  },
+  {
+    key: "diagnostic_center",
+    label: "Radiology / Diagnostic Centres",
+    blurb: "Walk-in intake, multi-modality worklists, branded PDF reports, and WhatsApp-deliverable results — from ₵1,200/month.",
+    href: "/solutions/diagnostic-centers",
   },
 ];
 

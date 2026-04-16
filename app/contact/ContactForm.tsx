@@ -7,6 +7,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 const facilityTypes = [
   { value: "hospital", label: "Hospital / clinic" },
   { value: "laboratory", label: "Laboratory" },
+  { value: "diagnostic_center", label: "Radiology / Diagnostic Centre" },
   { value: "pharmacy", label: "Pharmacy" },
   { value: "other", label: "Other" },
 ] as const;

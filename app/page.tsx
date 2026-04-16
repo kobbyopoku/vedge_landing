@@ -37,8 +37,8 @@ const features = [
   },
   {
     num: "03",
-    title: "One platform. Four verticals.",
-    body: "Hospitals, labs, and pharmacies on the same backbone — so a doctor orders a test, the lab runs it, the pharmacy dispenses the meds, and the ledger closes itself.",
+    title: "One platform. Every facility type.",
+    body: "Hospitals, labs, pharmacies, and diagnostic centres on the same backbone — so a doctor orders a test, the lab runs it, the imaging centre reads the scan, the pharmacy dispenses the meds, and the ledger closes itself.",
   },
   {
     num: "04",
@@ -86,7 +86,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Verticals</div>
-                      <div className="mt-1 font-display text-2xl">4</div>
+                      <div className="mt-1 font-display text-2xl">5</div>
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Starts at</div>
@@ -142,7 +142,7 @@ export default function HomePage() {
             <div className="col-span-12 md:col-span-4">
               <Kicker>What we cover</Kicker>
               <h2 className="reveal mt-6 font-display text-display text-ink">
-                Four verticals.<br /><span className="italic-display">One chart.</span>
+                One chart across<br /><span className="italic-display">every facility type.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-8 max-w-sm text-ink/70">
                 Most software vendors sell you a hospital system, a lab system, and a pharmacy system as three separate products. Vedge was built to be one.
@@ -209,7 +209,7 @@ export default function HomePage() {
       <section className="border-y border-ink/15 bg-bone-deep py-20">
         <Container>
           <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4">
-            <div className="reveal"><StatBlock value="11" label="Pricing tiers" note="Across four verticals, meeting you where you are." /></div>
+            <div className="reveal"><StatBlock value="14" label="Pricing tiers" note="Across five verticals, meeting you where you are." /></div>
             <div className="reveal reveal-delay-1"><StatBlock value="30d" label="Hospital trial" note="Zero credit card. Zero auto-charge. Cancel any time." /></div>
             <div className="reveal reveal-delay-2"><StatBlock value="20%" label="Annual saving" note="Save when you commit to a year. Founding customers save 40%." /></div>
             <div className="reveal reveal-delay-3"><StatBlock value="Free" label="Starting price" note="Labs and pharmacies start free. Hospitals from ₵1,200/month." /></div>
@@ -225,10 +225,10 @@ export default function HomePage() {
             <div className="col-span-12 md:col-span-7">
               <Kicker className="!text-bone">Design partner programme · 2026</Kicker>
               <h2 id="partners-heading" className="reveal mt-8 font-display text-hero text-bone">
-                Forty facilities. <span className="italic-display !text-sun">Ten of each. One year. No invoice.</span>
+                Fifty facilities. <span className="italic-display !text-sun">One year. No invoice.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-8 max-w-xl font-display text-xl text-bone/90 leading-snug">
-                We are taking forty African facilities — ten hospitals, ten clinics, ten laboratories, ten pharmacies — into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
+                We are taking fifty African facilities — across hospitals, clinics, laboratories, pharmacies, and diagnostic centres — into a twelve-month design partnership. Full access to every module of Vedge, zero cost, in exchange for thirty minutes a week and one case study at month twelve.
               </p>
               <ul className="reveal reveal-delay-2 mt-10 space-y-3">
                 {[
@@ -258,8 +258,8 @@ export default function HomePage() {
               <div className="reveal reveal-delay-2 flex flex-col gap-12">
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Partners</div>
-                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">40</div>
-                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Ten each across hospitals, clinics, labs, and pharmacies.</div>
+                  <div className="mt-2 font-display text-[5.5rem] leading-none text-bone">50</div>
+                  <div className="mt-2 max-w-[14rem] text-xs text-bone/75">Across hospitals, clinics, labs, pharmacies, and diagnostic centres.</div>
                 </div>
                 <div>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-sun">Duration</div>

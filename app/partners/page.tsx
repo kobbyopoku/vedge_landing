@@ -84,15 +84,15 @@ export default function PartnersPage() {
                 Twelve months. <span className="italic-display">Zero invoice.</span>
               </h1>
               <p className="reveal reveal-delay-1 mt-10 max-w-2xl font-display text-xl text-ink/80 leading-snug">
-                The Vedge Design Partner programme. A twelve-month free deployment for forty African healthcare facilities — ten hospitals, ten clinics, ten laboratories, ten pharmacies — willing to build the product with us, on camera, on the ward, on the record.
+                The Vedge Design Partner programme. A twelve-month free deployment for fifty African healthcare facilities — across hospitals, clinics, laboratories, pharmacies, and diagnostic centres — willing to build the product with us, on camera, on the ward, on the record.
               </p>
 
               {/* The shape of the deal, in four numbers */}
               <dl className="reveal reveal-delay-2 mt-14 grid grid-cols-2 gap-y-10 border-t border-ink/20 pt-10 md:grid-cols-4">
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Partners</dt>
-                  <dd className="mt-2 font-display text-4xl">40</dd>
-                  <p className="mt-2 max-w-[12rem] text-xs text-ink/65">Ten each across hospitals, clinics, labs, and pharmacies.</p>
+                  <dd className="mt-2 font-display text-4xl">50</dd>
+                  <p className="mt-2 max-w-[12rem] text-xs text-ink/65">Across hospitals, clinics, labs, pharmacies, and diagnostic centres.</p>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Duration</dt>

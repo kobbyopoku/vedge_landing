@@ -35,6 +35,8 @@ function toVertical(orgType: string): Vertical | null {
       return "pharmacy";
     case "PATIENT":
       return "patient";
+    case "DIAGNOSTIC_CENTER":
+      return "diagnostic_center";
     default:
       return null;
   }

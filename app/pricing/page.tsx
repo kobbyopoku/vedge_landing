@@ -11,7 +11,7 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Transparent pricing for hospitals, laboratories, pharmacies, and patients across Africa. Free base tiers for labs and pharmacies. Hospitals from ₵1,200/month.",
+  description: "Transparent pricing for hospitals, laboratories, pharmacies, diagnostic centres, and patients across Africa. Free base tiers for labs and pharmacies. Hospitals and imaging centres from ₵1,200/month.",
 };
 
 // Groups and display labels for pricing segments.
@@ -44,6 +44,13 @@ const segments: { key: Vertical; title: string; kicker: string; note: string; an
     note: "The Vedge patient app is free. Teleconsultation and lab result delivery are priced per use, never per month.",
     anchor: "patient",
   },
+  {
+    key: "diagnostic_center",
+    title: "Radiology / Diagnostic Centres",
+    kicker: "For the scanner",
+    note: "Three tiers for imaging centres of every size. Starter covers CT, X-ray, and ultrasound. Pro adds MRI, mammography, ECG, and PACS. Enterprise extends to multi-site teleradiology networks.",
+    anchor: "diagnostic",
+  },
 ];
 
 export default async function PricingPage() {
@@ -56,7 +63,7 @@ export default async function PricingPage() {
         <Container className="pt-20 pb-24 md:pt-28 md:pb-32">
           <Kicker>Pricing · 2026 edition</Kicker>
           <h1 className="reveal mt-8 font-display text-hero max-w-5xl">
-            Eleven plans. <span className="italic-display">Four verticals.</span> Priced in cedis, <span className="italic-display">not dollars.</span>
+            Fourteen plans. <span className="italic-display">Five verticals.</span> Priced in cedis, <span className="italic-display">not dollars.</span>
           </h1>
           <div className="mt-14 grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-7">
