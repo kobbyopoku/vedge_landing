@@ -4,6 +4,7 @@ import { Kicker } from "../../_components/Kicker";
 import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
+import { ProductShot } from "../../_components/ProductShot";
 
 export const metadata: Metadata = {
   title: "For laboratories",
@@ -114,6 +115,20 @@ export default function LaboratoriesPage() {
           </div>
         </Container>
       </section>
+
+      {/* ═══════════════ PRODUCT SHOT ═══════════════ */}
+      <ProductShot
+        kicker="On the bench"
+        title={
+          <>
+            Orders, results,<br />
+            <span className="italic-display">QC — one view.</span>
+          </>
+        }
+        body="Orders, Results, Test Catalog, Panels, and QC as tabs in one frame. Urgent work stays at the top; validated results auto-flow to the referring clinician; the catalog edits live without a redeploy."
+        src="/screenshots/web-lab.png"
+        alt="Lab dashboard with Orders tab showing a test in progress, and tabs for Results, Test Catalog, Panels, and QC along the top."
+      />
 
       <KenteDivider className="bg-bone-deep py-4" />
 

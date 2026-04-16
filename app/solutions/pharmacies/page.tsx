@@ -4,6 +4,7 @@ import { Kicker } from "../../_components/Kicker";
 import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
+import { ProductShot } from "../../_components/ProductShot";
 
 export const metadata: Metadata = {
   title: "For pharmacies",
@@ -196,6 +197,20 @@ export default function PharmaciesPage() {
           </div>
         </Container>
       </section>
+
+      {/* ═══════════════ PRODUCT SHOT ═══════════════ */}
+      <ProductShot
+        kicker="At the counter"
+        title={
+          <>
+            Dispense, restock,<br />
+            <span className="italic-display">reconcile.</span>
+          </>
+        }
+        body="Central warehouse, inbound transfers, demand forecast, and controlled-drugs ledger — all in one pane. Orders flow from the prescribing doctor’s chart; the pharmacist counts, scans, and closes the ticket."
+        src="/screenshots/web-pharmacy.png"
+        alt="Pharmacy overview dashboard showing four inventory metrics, and tabs for Pending, Processing, Dispensed, and On Hold prescriptions."
+      />
 
       <KenteDivider className="bg-bone-deep py-4" />
 

@@ -4,6 +4,7 @@ import { Kicker } from "../../_components/Kicker";
 import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
+import { ProductShot } from "../../_components/ProductShot";
 
 export const metadata: Metadata = {
   title: "For hospitals and clinics",
@@ -100,6 +101,20 @@ export default function HospitalsPage() {
           </div>
         </Container>
       </section>
+
+      {/* ═══════════════ PRODUCT SHOTS ═══════════════ */}
+      <ProductShot
+        kicker="In the record"
+        title={
+          <>
+            The ward<br />
+            <span className="italic-display">you actually run.</span>
+          </>
+        }
+        body="Active admissions grouped by ward. Bed A-01 occupied by Akosua, day-1 post-op appendicectomy. Transfer and discharge in a single click — no folder trolley, no whiteboard reshuffle."
+        src="/screenshots/web-admissions.png"
+        alt="Vedge dashboard showing Active admissions with two patients in General Ward A — bed numbers, admission dates, attending providers, and transfer/discharge actions."
+      />
 
       <KenteDivider className="bg-bone-deep py-4" />
 

@@ -4,6 +4,7 @@ import { Kicker } from "../../_components/Kicker";
 import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
+import { ProductShot } from "../../_components/ProductShot";
 
 export const metadata: Metadata = {
   title: "For diagnostic centres",
@@ -100,6 +101,20 @@ export default function DiagnosticCentersPage() {
           </div>
         </Container>
       </section>
+
+      {/* ═══════════════ PRODUCT SHOT ═══════════════ */}
+      <ProductShot
+        kicker="On the worklist"
+        title={
+          <>
+            Orders in, reports out,<br />
+            <span className="italic-display">nothing in between.</span>
+          </>
+        }
+        body="Studies land on the modality worklist the moment a referrer orders. Radiographer acquires, PACS syncs, radiologist opens a template, signs — referrer sees the report on their phone before the patient gets home."
+        src="/screenshots/web-imaging.png"
+        alt="Imaging worklist dashboard showing the Orders and Reports tab structure for inbound studies."
+      />
 
       <KenteDivider className="bg-bone-deep py-4" />
 
