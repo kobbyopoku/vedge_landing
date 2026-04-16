@@ -252,25 +252,25 @@ export const verticals: {
     key: "hospital",
     label: "Hospitals & clinics",
     blurb: "Inpatient, outpatient, pharmacy, and insurance claims — one chart, one record.",
-    href: "/hospitals",
+    href: "/solutions/hospitals-clinics",
   },
   {
     key: "laboratory",
-    label: "Laboratories",
+    label: "Medical laboratories",
     blurb: "Starts free. Levey-Jennings QC and reagent tracking on Pro.",
-    href: "/laboratories",
+    href: "/solutions/medical-labs",
   },
   {
     key: "pharmacy",
     label: "Pharmacies",
     blurb: "Free base tier. Paid Recommended tier puts you in the prescribing doctor's app.",
-    href: "/pharmacies",
+    href: "/solutions/pharmacies",
   },
   {
     key: "patient",
     label: "Patients",
     blurb: "A free mobile app that keeps patients connected to every facility on Vedge.",
-    href: "/pricing#patient",
+    href: "/companions/vedge-patient",
   },
 ];
 

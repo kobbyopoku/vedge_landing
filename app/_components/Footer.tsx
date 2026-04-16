@@ -4,11 +4,19 @@ import { KenteDivider } from "./KenteDivider";
 
 const columns = [
   {
-    title: "Product",
+    title: "Solutions",
     links: [
-      { label: "Hospitals", href: "/hospitals" },
-      { label: "Laboratories", href: "/laboratories" },
-      { label: "Pharmacies", href: "/pharmacies" },
+      { label: "Hospitals & clinics", href: "/solutions/hospitals-clinics" },
+      { label: "Medical laboratories", href: "/solutions/medical-labs" },
+      { label: "Pharmacies", href: "/solutions/pharmacies" },
+      { label: "Diagnostic centres", href: "/solutions/diagnostic-centers" },
+    ],
+  },
+  {
+    title: "Companions",
+    links: [
+      { label: "Vedge Staff", href: "/companions/vedge-staff" },
+      { label: "Vedge Patient", href: "/companions/vedge-patient" },
       { label: "Pricing", href: "/pricing" },
     ],
   },
@@ -20,14 +28,6 @@ const columns = [
       { label: "Security & compliance", href: "/about#security" },
       { label: "Careers", href: "/about#careers" },
       { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    title: "Offices",
-    links: [
-      { label: "Accra, Ghana", href: "/contact" },
-      { label: "Takoradi, Ghana", href: "/contact" },
-      { label: "Lagos, Nigeria", href: "/contact" },
     ],
   },
 ];

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Container } from "../_components/Container";
-import { Kicker } from "../_components/Kicker";
-import { Button } from "../_components/Button";
-import { StatBlock } from "../_components/StatBlock";
-import { KenteDivider } from "../_components/KenteDivider";
+import { Container } from "../../_components/Container";
+import { Kicker } from "../../_components/Kicker";
+import { Button } from "../../_components/Button";
+import { StatBlock } from "../../_components/StatBlock";
+import { KenteDivider } from "../../_components/KenteDivider";
 
 export const metadata: Metadata = {
   title: "For laboratories",
