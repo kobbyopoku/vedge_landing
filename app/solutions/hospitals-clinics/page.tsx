@@ -107,13 +107,13 @@ export default function HospitalsPage() {
         kicker="In the record"
         title={
           <>
-            The ward<br />
-            <span className="italic-display">you actually run.</span>
+            Every patient,<br />
+            <span className="italic-display">every visit.</span>
           </>
         }
-        body="Active admissions grouped by ward. Bed A-01 occupied by Akosua, day-1 post-op appendicectomy. Transfer and discharge in a single click — no folder trolley, no whiteboard reshuffle."
-        src="/screenshots/web-admissions.png"
-        alt="Vedge dashboard showing Active admissions with two patients in General Ward A — bed numbers, admission dates, attending providers, and transfer/discharge actions."
+        body="Adjoa Addo. Fati Mensah. Ebert Owusu. The directory holds thousands of patients with MRN, NHIS number, demographics, and allergy flags — one search box, sub-second results. New registration in under a minute at the front desk."
+        src="/screenshots/web-patients.png"
+        alt="Vedge patient directory showing a paginated table of patients with MRN, name, gender, date of birth, phone, and registration date — Ghanaian names throughout."
       />
 
       <KenteDivider className="bg-bone-deep py-4" />
