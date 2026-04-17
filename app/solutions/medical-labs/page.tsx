@@ -125,9 +125,9 @@ export default function LaboratoriesPage() {
             <span className="italic-display">QC — one view.</span>
           </>
         }
-        body="Orders, Results, Test Catalog, Panels, and QC as tabs in one frame. Urgent work stays at the top; validated results auto-flow to the referring clinician; the catalog edits live without a redeploy."
+        body="Adelaide Kusi. Belinda Gyamfi. Ama Bannerman flagged urgent. The bench shows every order with its patient, ordering clinician, priority flag, and test count on one row — Orders, Results, Test Catalog, Panels, and TAT as sibling tabs on top."
         src="/screenshots/web-lab.png"
-        alt="Lab dashboard with Orders tab showing a test in progress, and tabs for Results, Test Catalog, Panels, and QC along the top."
+        alt="Lab dashboard showing the Orders tab with a table of lab orders — patient name, ordering provider Ama Owusu, test count, and priority pills (Urgent highlighted amber, Routine default)."
       />
 
       <KenteDivider className="bg-bone-deep py-4" />
