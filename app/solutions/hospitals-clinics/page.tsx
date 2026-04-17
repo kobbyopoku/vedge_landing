@@ -116,6 +116,20 @@ export default function HospitalsPage() {
         alt="Vedge patient directory showing a paginated table of patients with MRN, name, gender, date of birth, phone, and registration date — Ghanaian names throughout."
       />
 
+      <ProductShot
+        kicker="In the chart"
+        title={
+          <>
+            The chart,<br />
+            <span className="italic-display">not the folder.</span>
+          </>
+        }
+        body="Demographics, safety profile, active prescriptions, emergency contact, and the clinical timeline — all on the first screen. Every encounter is one tap away; every lab result, every Rx, every vitals trend already stitched in."
+        src="/screenshots/web-patient-chart.png"
+        alt="Patient detail page for Akosua Addo showing demographics, clinical timeline, active prescriptions, allergies, and safety profile in a single editorial layout."
+        variant="bone-deep"
+      />
+
       <KenteDivider className="bg-bone-deep py-4" />
 
       {/* ═══════════════ WORKFLOW ═══════════════ */}
