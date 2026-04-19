@@ -12,32 +12,32 @@ Core differentiators:
 
 ## About
 
-- [Homepage](https://vedge.health): product overview, hero, marquee of shipped features
-- [About Vedge](https://vedge.health/about): the thesis, the team, the Accra origin
-- [Contact](https://vedge.health/contact): sales, support, and general enquiries
+- [Homepage](https://tryvedge.com): product overview, hero, marquee of shipped features
+- [About Vedge](https://tryvedge.com/about): the thesis, the team, the Accra origin
+- [Contact](https://tryvedge.com/contact): sales, support, and general enquiries
 
 ## Solutions (by facility type)
 
-- [Hospitals & Clinics](https://vedge.health/solutions/hospitals-clinics): inpatient wards, MAR (medication administration record), admissions, NHIS claims, multi-specialty outpatient. Plans start at Vedge Clinic (₵1,200/mo) and scale to Vedge Enterprise (custom) for regional groups and ministries.
-- [Medical Labs](https://vedge.health/solutions/medical-labs): test catalog, specimen tracking, Levey-Jennings QC, reagent-lot traceability, HL7 instrument interfaces, critical-result alerts. Free Essentials tier, Lab Pro at ₵1,500/mo, Lab Accredited at ₵4,500/mo.
-- [Pharmacies](https://vedge.health/solutions/pharmacies): POS, inventory, NHIS claim capture, multi-branch chains, placement in the patient app when Vedge doctors prescribe nearby. Free Basic tier, Starter ₵149/mo, Plus ₵349/mo, Chain ₵699/mo per branch.
-- [Diagnostic Centres](https://vedge.health/solutions/diagnostic-centers): imaging orders, modality worklist, radiologist reading tools, teleradiology-ready reporting, branded PDF reports. Starter ₵1,200/mo, Pro ₵3,500/mo, Enterprise ₵8,000/mo.
+- [Hospitals & Clinics](https://tryvedge.com/solutions/hospitals-clinics): inpatient wards, MAR (medication administration record), admissions, NHIS claims, multi-specialty outpatient. Plans start at Vedge Clinic (₵1,200/mo) and scale to Vedge Enterprise (custom) for regional groups and ministries.
+- [Medical Labs](https://tryvedge.com/solutions/medical-labs): test catalog, specimen tracking, Levey-Jennings QC, reagent-lot traceability, HL7 instrument interfaces, critical-result alerts. Free Essentials tier, Lab Pro at ₵1,500/mo, Lab Accredited at ₵4,500/mo.
+- [Pharmacies](https://tryvedge.com/solutions/pharmacies): POS, inventory, NHIS claim capture, multi-branch chains, placement in the patient app when Vedge doctors prescribe nearby. Free Basic tier, Starter ₵149/mo, Plus ₵349/mo, Chain ₵699/mo per branch.
+- [Diagnostic Centres](https://tryvedge.com/solutions/diagnostic-centers): imaging orders, modality worklist, radiologist reading tools, teleradiology-ready reporting, branded PDF reports. Starter ₵1,200/mo, Pro ₵3,500/mo, Enterprise ₵8,000/mo.
 
 ## Pricing
 
-- [All plans & pricing](https://vedge.health/pricing): 10 paid plans across 4 facility verticals plus 1 free patient app. Monthly or annual (20% off annual). 30-day trials for hospital tiers, 14-day trials for lab and diagnostic tiers, no-trial free tiers on the base plans.
+- [All plans & pricing](https://tryvedge.com/pricing): 10 paid plans across 4 facility verticals plus 1 free patient app. Monthly or annual (20% off annual). 30-day trials for hospital tiers, 14-day trials for lab and diagnostic tiers, no-trial free tiers on the base plans.
 - **Founding customer programme**: the first 15 paying facilities get 40% off their first year.
 
 ## Companion apps
 
-- [Vedge Staff](https://vedge.health/companions/vedge-staff): mobile companion for clinicians — charting, MAR, lab results, imaging worklist, offline sync. Works on iOS and Android.
-- [Vedge for Patients](https://vedge.health/companions/vedge-patient): free consumer app — book appointments, view results, refill prescriptions, join teleconsults. Every Vedge facility is listed automatically.
+- [Vedge Staff](https://tryvedge.com/companions/vedge-staff): mobile companion for clinicians — charting, MAR, lab results, imaging worklist, offline sync. Works on iOS and Android.
+- [Vedge for Patients](https://tryvedge.com/companions/vedge-patient): free consumer app — book appointments, view results, refill prescriptions, join teleconsults. Every Vedge facility is listed automatically.
 
 ## Partners
 
-- [Design partners](https://vedge.health/partners): early-customer programme for hospitals, labs, and pharmacies who want to shape the roadmap. 40% founding discount, direct line to the team, quarterly design reviews.
+- [Design partners](https://tryvedge.com/partners): early-customer programme for hospitals, labs, and pharmacies who want to shape the roadmap. 40% founding discount, direct line to the team, quarterly design reviews.
 
 ## Optional
 
-- Vedge Health is a private company. For press, investor, or regulatory enquiries use the [Contact](https://vedge.health/contact) page.
+- Vedge Health is a private company. For press, investor, or regulatory enquiries use the [Contact](https://tryvedge.com/contact) page.
 - Vedge integrates with NHIS, Paystack, Flutterwave, Africa's Talking (SMS), WhatsApp, Daily.co (teleconsult), and HL7-speaking lab analyzers. Integration lists per tier are on the pricing page.
