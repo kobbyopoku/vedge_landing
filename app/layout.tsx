@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "./_components/Header";
 import { Footer } from "./_components/Footer";
 import { RevealMount } from "./_components/RevealMount";
+import { CookieBanner } from "./_components/legal/CookieBanner";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({
         <Header />
         <main className="min-h-[60vh]">{children}</main>
         <Footer />
+        <CookieBanner />
       </body>
     </html>
   );
