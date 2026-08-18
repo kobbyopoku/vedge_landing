@@ -36,8 +36,12 @@ type Filters = {
   /** Only ever a value from {@link FACILITY_TYPES}; anything else is dropped. */
   type?: string;
   country?: string;
-  city?: string;
+  /** Matches a facility's own city, or any active branch's city, region, or address. */
+  location?: string;
+  /** Matches a facility's own name and description only — geography lives in {@link location}. */
   q?: string;
+  /** Contains-match on a facility's published service names, e.g. "MRI". */
+  service?: string;
   /** Zero-based. */
   page: number;
 };
@@ -57,8 +61,16 @@ function readFilters(raw: Record<string, string | string[] | undefined>): Filter
     // ISO 3166-1 alpha-3. Shape-checked only: the set of countries Vedge
     // operates in is the backend's to know, not this file's.
     country: requestedCountry && /^[A-Z]{3}$/.test(requestedCountry) ? requestedCountry : undefined,
-    city: one(raw.city),
+    // `location` replaced `city` on the backend contract. The API now
+    // silently ignores `?city=` rather than rejecting it, so an old
+    // bookmark or shared link carrying it would otherwise render an
+    // unfiltered directory with no error. Falling back to `city` here
+    // keeps every old link working exactly as before it shipped, and
+    // `directoryHref` below never emits `city` again — so the old
+    // parameter cannot resurface from a link this site generates itself.
+    location: one(raw.location) ?? one(raw.city),
     q: one(raw.q),
+    service: one(raw.service),
     page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0,
   };
 }
@@ -68,8 +80,9 @@ function directoryHref(filters: Partial<Filters>): string {
   const params = new URLSearchParams();
   if (filters.type) params.set("type", filters.type);
   if (filters.country) params.set("country", filters.country);
-  if (filters.city) params.set("city", filters.city);
+  if (filters.location) params.set("location", filters.location);
   if (filters.q) params.set("q", filters.q);
+  if (filters.service) params.set("service", filters.service);
   if (filters.page && filters.page > 0) params.set("page", String(filters.page));
   const query = params.toString();
   return query ? `/facilities?${query}` : "/facilities";
@@ -80,13 +93,14 @@ function directoryHref(filters: Partial<Filters>): string {
  *
  * `type` and `country` come from closed sets, so `?type=PHARMACY` is a
  * finite, genuinely useful landing page — "pharmacies on Vedge" is a
- * thing people search for. `city` and `q` are free text, so indexing
- * them would open an unbounded URL space off a single page: every
- * misspelling of every town becomes its own crawlable, near-empty
- * result page. That is the textbook internal-search crawler trap, and it
- * costs crawl budget that should be going to the facility pages
- * themselves. Those views stay `noindex, follow` — still crawled through
- * to the facilities they list, never indexed in their own right.
+ * thing people search for. `location`, `q` and `service` are free text,
+ * so indexing them would open an unbounded URL space off a single page:
+ * every misspelling of every town, or every service name, becomes its
+ * own crawlable, near-empty result page. That is the textbook
+ * internal-search crawler trap, and it costs crawl budget that should be
+ * going to the facility pages themselves. Those views stay
+ * `noindex, follow` — still crawled through to the facilities they list,
+ * never indexed in their own right.
  *
  * A view that returned nothing is never indexable either, whatever its
  * filters. While the directory is filling up, most type chips lead
@@ -94,7 +108,7 @@ function directoryHref(filters: Partial<Filters>): string {
  * the exact pages that should be ranking.
  */
 function isIndexable(filters: Filters, resultCount: number): boolean {
-  return resultCount > 0 && !filters.city && !filters.q;
+  return resultCount > 0 && !filters.location && !filters.q && !filters.service;
 }
 
 export async function generateMetadata({
@@ -111,8 +125,9 @@ export async function generateMetadata({
   const { totalElements } = await getFacilities({
     type: filters.type,
     country: filters.country,
-    city: filters.city,
+    location: filters.location,
     q: filters.q,
+    service: filters.service,
     page: filters.page,
     size: FACILITY_PAGE_SIZE,
   });
@@ -124,8 +139,8 @@ export async function generateMetadata({
     : "Every hospital, clinic, laboratory, pharmacy, and diagnostic centre running on Vedge — with opening hours, published services, and a direct line to each one.";
 
   // Canonical always names the clean, indexable form of this view, so a
-  // city or search variant consolidates onto the page that should rank
-  // rather than competing with it.
+  // location or search variant consolidates onto the page that should
+  // rank rather than competing with it.
   const canonicalFilters: Partial<Filters> = indexable
     ? { type: filters.type, country: filters.country, page: filters.page }
     : { type: filters.type, country: filters.country };
@@ -148,13 +163,16 @@ export default async function FacilitiesPage({
   const { facilities, page, totalPages, totalElements } = await getFacilities({
     type: filters.type,
     country: filters.country,
-    city: filters.city,
+    location: filters.location,
     q: filters.q,
+    service: filters.service,
     page: filters.page,
     size: FACILITY_PAGE_SIZE,
   });
 
-  const hasNarrowing = Boolean(filters.type || filters.country || filters.city || filters.q);
+  const hasNarrowing = Boolean(
+    filters.type || filters.country || filters.location || filters.q || filters.service,
+  );
   const typeLabel = filters.type ? facilityTypePluralLabel(filters.type) : null;
 
   return (
@@ -183,59 +201,47 @@ export default async function FacilitiesPage({
       {/* ═══════════════ FILTERS ═══════════════ */}
       <section className="border-b border-ink/15 bg-bone-deep">
         <Container className="py-10">
-          {/* Type chips. Plain links, so filtering works with no JS at
-              all and every filtered view is a real, shareable URL. */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
-            <span className="mr-2 font-mono text-[10px] uppercase tracking-kicker text-ink/50">
-              Type
-            </span>
-            <Link
-              href={directoryHref({ country: filters.country, city: filters.city, q: filters.q })}
-              aria-current={filters.type ? undefined : "page"}
-              className={`rounded-full border px-4 py-[6px] font-mono text-[10px] uppercase tracking-kicker transition-colors ${
-                filters.type
-                  ? "border-ink/25 text-ink/70 hover:border-ink hover:text-ink"
-                  : "border-forest bg-forest text-bone"
-              }`}
-            >
-              All
-            </Link>
-            {FACILITY_TYPES.map((option) => {
-              const active = filters.type === option.value;
-              return (
-                <Link
-                  key={option.value}
-                  href={directoryHref({
-                    type: option.value,
-                    country: filters.country,
-                    city: filters.city,
-                    q: filters.q,
-                  })}
-                  aria-current={active ? "page" : undefined}
-                  className={`rounded-full border px-4 py-[6px] font-mono text-[10px] uppercase tracking-kicker transition-colors ${
-                    active
-                      ? "border-forest bg-forest text-bone"
-                      : "border-ink/25 text-ink/70 hover:border-ink hover:text-ink"
-                  }`}
-                >
-                  {option.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* A native GET form: no client component, no JS, and the
-              result is a URL the visitor can bookmark or share. */}
-          <form action="/facilities" method="get" className="mt-8 flex flex-wrap items-end gap-4">
-            {filters.type && <input type="hidden" name="type" value={filters.type} />}
+          {/* One native GET form for every filter, `type` included: no
+              client component, no JS, and the result of every submit is
+              a real URL the visitor can bookmark or share. Three of the
+              four fields are free text over different things — name and
+              description, geography, and services — so each is labelled
+              for exactly what it searches; see the field notes below. */}
+          <form action="/facilities" method="get" className="flex flex-wrap items-end gap-6">
             {filters.country && <input type="hidden" name="country" value={filters.country} />}
+
+            <div className="min-w-[11rem]">
+              <label
+                htmlFor="facility-type"
+                className="block font-mono text-[10px] uppercase tracking-kicker text-ink/50"
+              >
+                Type
+              </label>
+              {/* A dropdown, not a chip row — same select convention as
+                  ContactForm / DesignPartnerForm, styled to match this
+                  form's own text inputs rather than their dark-panel
+                  variant. */}
+              <select
+                id="facility-type"
+                name="type"
+                defaultValue={filters.type ?? ""}
+                className="mt-2 w-full appearance-none border-0 border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none focus:border-ink"
+              >
+                <option value="">All types</option>
+                {FACILITY_TYPES.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="flex-1 min-w-[14rem]">
               <label
                 htmlFor="facility-q"
                 className="block font-mono text-[10px] uppercase tracking-kicker text-ink/50"
               >
-                Facility name
+                Name or description
               </label>
               <input
                 id="facility-q"
@@ -249,17 +255,37 @@ export default async function FacilitiesPage({
 
             <div className="flex-1 min-w-[12rem]">
               <label
-                htmlFor="facility-city"
+                htmlFor="facility-location"
                 className="block font-mono text-[10px] uppercase tracking-kicker text-ink/50"
               >
-                City
+                City, region, or address
+              </label>
+              {/* Matches a branch's location too, not only the head
+                  office — a facility headquartered in Accra with a
+                  Kumasi branch is found by searching Kumasi. */}
+              <input
+                id="facility-location"
+                name="location"
+                type="text"
+                defaultValue={filters.location ?? ""}
+                placeholder="Accra, Kumasi, Takoradi…"
+                className="mt-2 w-full border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none placeholder:text-ink/35 focus:border-ink"
+              />
+            </div>
+
+            <div className="flex-1 min-w-[12rem]">
+              <label
+                htmlFor="facility-service"
+                className="block font-mono text-[10px] uppercase tracking-kicker text-ink/50"
+              >
+                Service offered
               </label>
               <input
-                id="facility-city"
-                name="city"
+                id="facility-service"
+                name="service"
                 type="text"
-                defaultValue={filters.city ?? ""}
-                placeholder="Accra, Kumasi, Takoradi…"
+                defaultValue={filters.service ?? ""}
+                placeholder="MRI, dialysis, ultrasound…"
                 className="mt-2 w-full border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none placeholder:text-ink/35 focus:border-ink"
               />
             </div>
@@ -290,7 +316,8 @@ export default async function FacilitiesPage({
           >
             {totalElements === 1 ? "1 facility" : `${totalElements} facilities`}
             {typeLabel ? ` · ${typeLabel}` : ""}
-            {filters.city ? ` · ${filters.city}` : ""}
+            {filters.location ? ` · ${filters.location}` : ""}
+            {filters.service ? ` · “${filters.service}”` : ""}
             {filters.q ? ` · “${filters.q}”` : ""}
           </p>
 

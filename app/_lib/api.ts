@@ -267,9 +267,21 @@ export type FacilityQuery = {
   country?: string;
   /** An `OrgType` name. An unrecognised value returns an empty page rather than an error. */
   type?: string;
-  city?: string;
-  /** Free-text name search. */
+  /**
+   * Replaced `city` on the backend contract. Matches the org's own city
+   * AND any active branch's city, region, or address — a facility
+   * headquartered in Accra with a Kumasi branch is now found by
+   * searching Kumasi. The API silently ignores an inbound `city` param
+   * rather than rejecting it, so this type has no `city` field at all:
+   * nothing here can accidentally send the parameter the backend no
+   * longer reads. See `app/facilities/page.tsx#readFilters` for how an
+   * old `?city=` link is mapped onto this field instead of being dropped.
+   */
+  location?: string;
+  /** Free-text search over a facility's own name and description only — no longer city. */
   q?: string;
+  /** Contains-match on a facility's published service names, e.g. "MRI". */
+  service?: string;
   /** Zero-based. */
   page?: number;
   size?: number;
@@ -417,8 +429,9 @@ function facilityQueryString(query: FacilityQuery): string {
   const params = new URLSearchParams();
   if (query.country) params.set("country", query.country);
   if (query.type) params.set("type", query.type);
-  if (query.city) params.set("city", query.city);
+  if (query.location) params.set("location", query.location);
   if (query.q) params.set("q", query.q);
+  if (query.service) params.set("service", query.service);
   if (query.page && query.page > 0) params.set("page", String(query.page));
   params.set("size", String(Math.min(query.size ?? FACILITY_PAGE_SIZE, MAX_FACILITY_PAGE_SIZE)));
   return params.toString();

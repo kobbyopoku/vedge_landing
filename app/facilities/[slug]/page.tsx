@@ -14,6 +14,7 @@ import {
 } from "../../_data/facilities";
 import { getAllFacilities, getFacility } from "../../_lib/api";
 import { LEGAL_CONFIG } from "../../_lib/legal/config";
+import { ServicesList } from "./ServicesList";
 
 /** Canonical production origin — see the note in `app/facilities/page.tsx`. */
 const SITE_URL = LEGAL_CONFIG.urls.marketing;
@@ -269,23 +270,7 @@ export default async function FacilityPage({ params }: PageProps) {
               </div>
 
               <div className="col-span-12 md:col-span-8">
-                <ul className="border-t border-ink/20">
-                  {facility.services.map((service) => (
-                    <li
-                      key={service.id}
-                      className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-ink/15 py-5"
-                    >
-                      <span className="font-display text-xl text-ink">
-                        {service.description ?? service.code}
-                      </span>
-                      <span className="font-mono text-[10px] uppercase tracking-kicker text-ink/50">
-                        {[service.modality, service.bodyPart, service.code]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <ServicesList services={facility.services} />
               </div>
             </div>
           </Container>

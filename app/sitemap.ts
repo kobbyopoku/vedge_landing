@@ -77,8 +77,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // actually have a facility in them.
     //
     // The closed set is what makes these safe to list at all (unlike the
-    // free-text city and search views, which `app/facilities/page.tsx`
-    // marks `noindex` precisely because they are unbounded). Filtering
+    // free-text location, service, and name/description search views,
+    // which `app/facilities/page.tsx` marks `noindex` precisely because
+    // they are unbounded). Filtering
     // to the occupied types is the second half of that: submitting
     // `?type=BLOOD_BANK` while no blood bank has listed itself asks a
     // crawler to spend budget on a page we already know is empty, and
