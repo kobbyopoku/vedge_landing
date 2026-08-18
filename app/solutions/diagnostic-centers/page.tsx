@@ -398,6 +398,31 @@ export default async function DiagnosticCentersPage() {
         </section>
       )}
 
+      {/* ═══════════════ DIRECTORY ═══════════════ */}
+      {/* The directory is this page's argument at a patient's reading
+          length — same story, different audience — so the two link to
+          each other rather than each pretending to be the whole thing. */}
+      <section className="border-t border-ink/15 py-16 md:py-20">
+        <Container>
+          <div className="grid grid-cols-12 items-end gap-6">
+            <div className="col-span-12 md:col-span-8">
+              <Kicker>Already running</Kicker>
+              <h2 className="reveal mt-6 font-display text-display">
+                See the centres <span className="italic-display">already on Vedge.</span>
+              </h2>
+              <p className="reveal reveal-delay-1 mt-6 max-w-xl text-ink/70">
+                Everything above, at the length a patient reads it — opening hours, published services, and how to send a request before travelling. One page per centre, written by the centre.
+              </p>
+            </div>
+            <div className="col-span-12 mt-8 md:col-span-4 md:mt-0 md:flex md:items-end md:justify-end">
+              <Button href="/facilities?type=DIAGNOSTIC_CENTER" variant="ghost">
+                Browse diagnostic centres
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ═══════════════ CTA ═══════════════ */}
       <section className="border-t border-ink/15 bg-forest-deep text-bone">
         <Container className="py-24 md:py-32">

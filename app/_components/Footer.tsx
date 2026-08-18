@@ -10,6 +10,11 @@ const columns = [
       { label: "Medical laboratories", href: "/solutions/medical-labs" },
       { label: "Pharmacies", href: "/solutions/pharmacies" },
       { label: "Diagnostic centres", href: "/solutions/diagnostic-centers" },
+      // The only site-wide internal link into the directory. The sitemap
+      // lists every facility page, but a section with no inbound link
+      // from the rest of the site is one a crawler reaches last and
+      // trusts least — and a visitor never finds at all.
+      { label: "Facility directory", href: "/facilities" },
     ],
   },
   {
