@@ -52,6 +52,28 @@ export type Facility = {
   acceptsRequests: boolean;
 };
 
+/**
+ * One of a facility's physical locations (`PublicFacilityBranch`).
+ *
+ * `latitude`/`longitude` are nullable exactly as they are on the backend
+ * record — no tenant could set them until this shipped, so a branch with
+ * no coordinates on file is the normal case, not an error. Render it
+ * anyway; it simply gets no directions link (see
+ * {@link branchDirectionsUrl}).
+ */
+export type FacilityBranch = {
+  name: string;
+  addressLine: string | null;
+  city: string | null;
+  region: string | null;
+  /** ISO 3166-1 **alpha-3**, same convention as {@link Facility.countryCode}. */
+  countryCode: string | null;
+  phone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  isMainBranch: boolean;
+};
+
 /** A facility as its own page shows it (`PublicFacilityDetail`). */
 export type FacilityDetail = {
   slug: string;
@@ -70,6 +92,8 @@ export type FacilityDetail = {
   accentColorHex: string | null;
   acceptsRequests: boolean;
   services: FacilityService[];
+  /** Active branches, main branch first then alphabetical — the backend's own order, kept as-is. */
+  branches: FacilityBranch[];
 };
 
 // ── display labels ───────────────────────────────────────────────────
@@ -182,6 +206,48 @@ export function locationLabel(
   const country = countryLabel(countryCode);
   if (city && country) return `${city}, ${country}`;
   return city || country || null;
+}
+
+/**
+ * Where a branch card's location line comes from — city, region, and
+ * country, whichever of the three are present. Unlike {@link locationLabel}
+ * this also carries `region`, because a branch (unlike the facility
+ * itself) has one.
+ */
+export function branchLocationLabel(
+  city: string | null | undefined,
+  region: string | null | undefined,
+  countryCode: string | null | undefined,
+): string | null {
+  const parts = [city, region, countryLabel(countryCode)].filter(
+    (part): part is string => Boolean(part && part.trim()),
+  );
+  return parts.length > 0 ? parts.join(", ") : null;
+}
+
+/**
+ * A "Directions" link for a branch with known coordinates — never an
+ * embedded map, which would cost a tile provider, an API key, and payload
+ * on a route already slimmed twice. Google's documented query-only URL
+ * scheme (`?api=1&query=lat,lng`) needs neither: it opens the visitor's
+ * own maps app on mobile and Google Maps on the web, built entirely from
+ * two numbers.
+ *
+ * `null` whenever either coordinate is missing or out of range — the
+ * normal case for a branch (see {@link FacilityBranch}), and, per the
+ * brief this shipped under, a link built from a bad number is worse than
+ * no link at all, so this stays conservative rather than rendering
+ * anything it isn't sure of.
+ */
+export function branchDirectionsUrl(
+  latitude: number | null | undefined,
+  longitude: number | null | undefined,
+): string | null {
+  if (typeof latitude !== "number" || typeof longitude !== "number") return null;
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90) return null;
+  if (longitude < -180 || longitude > 180) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 }
 
 // ── static fallback ──────────────────────────────────────────────────

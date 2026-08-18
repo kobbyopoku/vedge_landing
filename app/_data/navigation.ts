@@ -1,7 +1,7 @@
 /**
  * Single source of truth for the landing site's primary nav.
  *
- * Two dropdowns (Solutions, Companions) + two flat items (Pricing, Partners).
+ * Two dropdowns (Solutions, Companions) + three flat items (Facilities, Pricing, Partners).
  * Reserved sub-nav slots for Wave 7 are commented in place — uncomment when
  * DENTAL_* and OPTICAL_* plan families ship.
  */
@@ -66,6 +66,7 @@ export const nav: NavItem[] = [
       },
     ],
   },
+  { label: "Facilities", href: "/facilities" },
   { label: "Pricing", href: "/pricing" },
   { label: "Partners", href: "/partners" },
 ];

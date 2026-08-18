@@ -2,6 +2,7 @@ import { plans as staticPlans, type Plan, type Vertical } from "../_data/plans";
 import {
   facilitiesFallback,
   type Facility,
+  type FacilityBranch,
   type FacilityDetail,
   type FacilityService,
 } from "../_data/facilities";
@@ -191,6 +192,19 @@ interface ApiFacilitySummary {
   acceptsRequests: boolean;
 }
 
+/** Shape returned by the backend's `PublicFacilityBranch`. */
+interface ApiFacilityBranch {
+  name: string;
+  addressLine: string | null;
+  city: string | null;
+  region: string | null;
+  countryCode: string | null;
+  phone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  isMainBranch: boolean;
+}
+
 /** Shape returned by the backend's `PublicFacilityDetail`. */
 interface ApiFacilityDetail {
   slug: string;
@@ -208,6 +222,7 @@ interface ApiFacilityDetail {
   accentColorHex: string | null;
   acceptsRequests: boolean;
   services: ApiServiceOption[] | null;
+  branches: ApiFacilityBranch[] | null;
 }
 
 /**
@@ -336,6 +351,27 @@ function toFacilityService(api: ApiServiceOption): FacilityService {
   };
 }
 
+/**
+ * Convert an API branch to the landing's shape. `latitude`/`longitude`
+ * are read defensively — anything other than a JSON number (should never
+ * happen, but this is attacker-adjacent tenant data by the time it is
+ * theirs to set) becomes `null` rather than `NaN`, so a malformed value
+ * quietly loses its directions link instead of building a wrong one.
+ */
+function toFacilityBranch(api: ApiFacilityBranch): FacilityBranch {
+  return {
+    name: api.name,
+    addressLine: text(api.addressLine),
+    city: text(api.city),
+    region: text(api.region),
+    countryCode: text(api.countryCode),
+    phone: text(api.phone),
+    latitude: typeof api.latitude === "number" ? api.latitude : null,
+    longitude: typeof api.longitude === "number" ? api.longitude : null,
+    isMainBranch: api.isMainBranch === true,
+  };
+}
+
 /** Convert an API summary to the landing's Facility shape. */
 function toFacility(api: ApiFacilitySummary): Facility | null {
   // A row with no slug has no page to link to. The backend's listing
@@ -372,6 +408,7 @@ function toFacilityDetail(api: ApiFacilityDetail): FacilityDetail {
     accentColorHex: safeHexColor(api.accentColorHex),
     acceptsRequests: api.acceptsRequests === true,
     services: (api.services ?? []).map(toFacilityService),
+    branches: (api.branches ?? []).map(toFacilityBranch),
   };
 }
 

@@ -5,8 +5,11 @@ import { Container } from "../../_components/Container";
 import { Kicker } from "../../_components/Kicker";
 import { KenteDivider } from "../../_components/KenteDivider";
 import {
+  branchDirectionsUrl,
+  branchLocationLabel,
   facilityTypeLabel,
   locationLabel,
+  type FacilityBranch,
   type FacilityDetail,
 } from "../../_data/facilities";
 import { getAllFacilities, getFacility } from "../../_lib/api";
@@ -289,6 +292,33 @@ export default async function FacilityPage({ params }: PageProps) {
         </section>
       )}
 
+      {/* ═══════════════ LOCATIONS ═══════════════ */}
+      {facility.branches.length > 0 && (
+        <section className="border-t border-ink/15 py-16 md:py-24">
+          <Container>
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 md:col-span-4">
+                <Kicker>Locations</Kicker>
+                <h2 className="reveal mt-6 font-display text-display">
+                  Where to <span className="italic-display">find them.</span>
+                </h2>
+                <p className="reveal reveal-delay-1 mt-6 max-w-sm text-ink/70">
+                  Every active location {facility.name} has listed, main branch first.
+                </p>
+              </div>
+
+              <div className="col-span-12 md:col-span-8">
+                <ul className="grid grid-cols-1 border-t border-ink/20 sm:grid-cols-2">
+                  {facility.branches.map((branch, index) => (
+                    <BranchCard key={`${branch.name}-${index}`} branch={branch} index={index} />
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Container>
+        </section>
+      )}
+
       <KenteDivider className="bg-bone py-4" />
 
       {/* ═══════════════ FOOTER CTA ═══════════════ */}
@@ -320,6 +350,71 @@ export default async function FacilityPage({ params }: PageProps) {
         </Container>
       </section>
     </>
+  );
+}
+
+/** `tel:` needs digits and a leading `+` only — strip everything else a tenant typed. */
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/[^+\d]/g, "")}`;
+}
+
+/**
+ * One branch. Alternates the right-hand border on the 2-up grid the same
+ * way the capability grids on the solutions pages do, so a facility with
+ * an odd number of branches doesn't leave a dangling half-divider.
+ *
+ * A branch with no coordinates on file (the normal case — see
+ * {@link FacilityBranch}) still renders every other field; it simply
+ * gets no "Directions" link, never a dead or guessed one.
+ */
+function BranchCard({ branch, index }: { branch: FacilityBranch; index: number }) {
+  const location = branchLocationLabel(branch.city, branch.region, branch.countryCode);
+  const directionsHref = branchDirectionsUrl(branch.latitude, branch.longitude);
+
+  return (
+    <li
+      className={`border-b border-ink/15 p-7 ${index % 2 === 0 ? "sm:border-r sm:border-ink/15" : ""}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-display text-xl leading-tight text-ink">{branch.name}</h3>
+        {branch.isMainBranch && (
+          <span className="shrink-0 rounded-full border border-forest bg-forest/10 px-3 py-[3px] font-mono text-[9px] uppercase tracking-kicker text-forest">
+            Main
+          </span>
+        )}
+      </div>
+
+      {(branch.addressLine || location) && (
+        <address className="mt-3 not-italic text-sm leading-relaxed text-ink/70">
+          {branch.addressLine && <div>{branch.addressLine}</div>}
+          {location && <div>{location}</div>}
+        </address>
+      )}
+
+      {(branch.phone || directionsHref) && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          {branch.phone && (
+            <a
+              href={telHref(branch.phone)}
+              className="link-grow font-mono text-[10px] uppercase tracking-kicker text-ink/60"
+            >
+              {branch.phone}
+            </a>
+          )}
+          {directionsHref && (
+            <a
+              href={directionsHref}
+              rel="noopener noreferrer"
+              target="_blank"
+              aria-label={`Get directions to ${branch.name}`}
+              className="link-grow font-mono text-[10px] uppercase tracking-kicker text-clay"
+            >
+              Directions <span aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
 
