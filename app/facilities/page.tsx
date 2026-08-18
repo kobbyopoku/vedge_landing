@@ -202,11 +202,12 @@ export default async function FacilitiesPage({
       <section className="border-b border-ink/15 bg-bone-deep">
         <Container className="py-10">
           {/* One native GET form for every filter, `type` included: no
-              client component, no JS, and the result of every submit is
-              a real URL the visitor can bookmark or share. Three of the
-              four fields are free text over different things — name and
-              description, geography, and services — so each is labelled
-              for exactly what it searches; see the field notes below. */}
+              client component, no hydration, and the result of every
+              submit is a real URL the visitor can bookmark or share.
+              Three of the four fields are free text over different
+              things — name and description, geography, and services — so
+              each is labelled for exactly what it searches; see the
+              field notes below. */}
           <form action="/facilities" method="get" className="flex flex-wrap items-end gap-6">
             {filters.country && <input type="hidden" name="country" value={filters.country} />}
 
@@ -236,6 +237,37 @@ export default async function FacilitiesPage({
               </select>
             </div>
 
+            {/* Picking a type submits the form. The most-used filter went
+                from one click (the old pill row) to three interactions
+                when it became a dropdown, and this gives two of them
+                back without turning anything into a client component:
+                an inline script is ~230 bytes of HTML, no `"use client"`,
+                no hydration, no boundary, and the page's measured client
+                bundle is unchanged.
+
+                Delegated on `document` rather than bound to the element,
+                deliberately: that works whether React renders this script
+                in place or hoists it, survives a client-side navigation
+                (pagination, "Clear filters") because `document` outlives
+                the re-render, and needs no DOMContentLoaded guard. The
+                flag makes a second execution a no-op.
+
+                Degrades perfectly: without JS the Search button — which
+                stays, and is the only path for anyone whose browser fires
+                `change` per arrow key on a closed select — still submits
+                the identical form to the identical URL. ES5 on purpose:
+                inline scripts are not transpiled, and a parse error here
+                would silently drop the enhancement. */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html:
+                  "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;" +
+                  "document.addEventListener('change',function(e){var t=e.target;" +
+                  "if(!t||t.id!=='facility-type'||!t.form)return;" +
+                  "if(t.form.requestSubmit)t.form.requestSubmit();else t.form.submit();});}",
+              }}
+            />
+
             <div className="flex-1 min-w-[14rem]">
               <label
                 htmlFor="facility-q"
@@ -260,9 +292,14 @@ export default async function FacilitiesPage({
               >
                 City, region, or address
               </label>
-              {/* Matches a branch's location too, not only the head
-                  office — a facility headquartered in Accra with a
-                  Kumasi branch is found by searching Kumasi. */}
+              {/* Every word of the label is true of the server clause:
+                  the facility's own city and its own street address, and
+                  any active branch's city, region or address — so a
+                  facility headquartered in Accra with a Kumasi branch is
+                  found by searching Kumasi, and a single-site clinic at
+                  "12 Boundary Road, East Legon" is found by searching
+                  East Legon. Region is the one part that comes from
+                  branches alone; there is no org region column. */}
               <input
                 id="facility-location"
                 name="location"

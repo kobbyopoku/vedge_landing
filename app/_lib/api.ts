@@ -269,9 +269,10 @@ export type FacilityQuery = {
   type?: string;
   /**
    * Replaced `city` on the backend contract. Matches the org's own city
-   * AND any active branch's city, region, or address — a facility
-   * headquartered in Accra with a Kumasi branch is now found by
-   * searching Kumasi. The API silently ignores an inbound `city` param
+   * or street address, or any active branch's city, region, or address —
+   * a facility headquartered in Accra with a Kumasi branch is now found
+   * by searching Kumasi, and a single-site clinic is found by its own
+   * address. The API silently ignores an inbound `city` param
    * rather than rejecting it, so this type has no `city` field at all:
    * nothing here can accidentally send the parameter the backend no
    * longer reads. See `app/facilities/page.tsx#readFilters` for how an
@@ -280,7 +281,13 @@ export type FacilityQuery = {
   location?: string;
   /** Free-text search over a facility's own name and description only — no longer city. */
   q?: string;
-  /** Contains-match on a facility's published service names, e.g. "MRI". */
+  /**
+   * Contains-match over a facility's published services — description,
+   * code, modality and body part, the same four fields the facility
+   * page's own "Filter this list" box matches client-side
+   * (`app/facilities/[slug]/ServicesList.tsx`). So "MRI" finds a tariff
+   * described "Magnetic resonance imaging, brain" whose modality is MRI.
+   */
   service?: string;
   /** Zero-based. */
   page?: number;

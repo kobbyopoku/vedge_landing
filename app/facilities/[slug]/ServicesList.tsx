@@ -12,9 +12,22 @@ import type { FacilityService } from "../../_data/facilities";
  */
 const SHOW_FILTER_ABOVE = 6;
 
-/** Caps the list at about seven rows before it scrolls. Kept as one named
- *  constant so the value only has to make sense in one place. */
-const MAX_HEIGHT_CLASS = "max-h-[30rem]";
+/**
+ * Caps the list at about seven rows before it scrolls. Kept as one named
+ * constant so the value only has to make sense in one place.
+ *
+ * `min(30rem, 60vh)` rather than a bare `30rem`: 30rem is the right
+ * number and the wrong unit on its own. The seven-row arithmetic assumes
+ * rows do not wrap, but each row is `flex flex-wrap` with `gap-y-2`, so
+ * on a narrow viewport the meta span drops to a second line and rows grow
+ * to ~97px — about five visible, and the agreement with
+ * {@link SHOW_FILTER_ABOVE} drifts. More importantly 480px of nested
+ * scrolling inside a scrolling page is a touch-scroll trap on a short
+ * phone viewport, and this audience is explicitly low-end mobile. The
+ * `60vh` arm costs nothing on a desktop viewport (where 60vh exceeds
+ * 30rem) and removes the trap on a short one.
+ */
+const MAX_HEIGHT_CLASS = "max-h-[min(30rem,60vh)]";
 
 /**
  * The published-services list on a facility's page: a scroll-capped list
@@ -40,6 +53,13 @@ export function ServicesList({ services }: { services: FacilityService[] }) {
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return services;
+    // These four fields, in this order, are the same four the directory's
+    // "Service offered" box matches server-side
+    // (`OrganizationRepository.DIRECTORY_FILTERS`). Keeping them identical
+    // is the contract: when they disagreed — the server matching
+    // description alone — typing "MRI" here found a tariff described
+    // "Magnetic resonance imaging, brain" and typing "MRI" into the
+    // directory did not. Change one side and you must change the other.
     return services.filter((service) =>
       [service.description, service.code, service.modality, service.bodyPart]
         .filter((part): part is string => Boolean(part))
