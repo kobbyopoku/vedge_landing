@@ -27,9 +27,16 @@ const SITE_URL = LEGAL_CONFIG.urls.marketing;
  * This number is an accessibility threshold, not a performance tune. On
  * Firefox/Windows a CLOSED `<select>` fires `change` on every arrow key,
  * so an undebounced auto-submit turns one keyboard user walking the
- * fifteen org types into fifteen navigations — WCAG 3.2.2 (On Input).
- * The window has to outlast the gap between keystrokes so a whole walk
- * collapses into one navigation.
+ * fifteen org types into fifteen navigations. The window has to outlast
+ * the gap between keystrokes so a whole walk collapses into one.
+ *
+ * **What this does and does not fix.** It reduces the *frequency* of an
+ * unannounced change of context from fifteen to one. It does not make
+ * that change announced, and one unannounced change still fails WCAG
+ * 3.2.2 (On Input) — for mouse users as much as keyboard users. What
+ * closes 3.2.2 is technique G13, advising the user before the change:
+ * the visible hint rendered beside the dropdown. Debounce and hint are
+ * two halves of one fix, and neither is sufficient alone.
  *
  * **Lower bound.** Deliberate arrow-key stepping while reading each
  * option sits around 150-300ms per press, and held-key auto-repeat is far
@@ -259,6 +266,7 @@ export default async function FacilitiesPage({
                 id="facility-type"
                 name="type"
                 defaultValue={filters.type ?? ""}
+                aria-describedby="facility-type-hint"
                 className="mt-2 w-full appearance-none border-0 border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none focus:border-ink"
               >
                 <option value="">All types</option>
@@ -268,37 +276,77 @@ export default async function FacilitiesPage({
                   </option>
                 ))}
               </select>
+              {/* Says what the control is about to do BEFORE it does it —
+                  WCAG technique G13, and the thing that actually makes
+                  auto-submit conformant with 3.2.2 (On Input). The
+                  debounce below reduces how OFTEN the context changes; it
+                  cannot stop the change being unannounced, and one
+                  unannounced navigation still fails 3.2.2. `aria-describedby`
+                  puts it in the select's accessible description, so it is
+                  heard on focus rather than only seen.
+
+                  Hidden until the inline script marks the document,
+                  because without JS the dropdown does NOT auto-submit and
+                  this sentence would be false. The hint and the behaviour
+                  it describes therefore appear and disappear together.
+                  Hidden also means `aria-describedby` resolves to nothing,
+                  which is the correct answer in that case.
+
+                  It earns its place either way: the genuinely confusing
+                  thing about this form is that one field acts immediately
+                  and three wait, and nothing else on the page says so. */}
+              <p
+                id="facility-type-hint"
+                className="mt-2 hidden text-xs leading-snug text-ink/55 [html.js-autosubmit_&]:block"
+              >
+                Choosing a type searches straight away — the other fields wait for Search.
+              </p>
             </div>
 
             {/* Picking a type submits the form. The most-used filter went
                 from one click (the old pill row) to three interactions
-                when it became a dropdown, and this gives two of them
-                back without turning anything into a client component:
-                an inline script is ~230 bytes of HTML, no `"use client"`,
-                no hydration, no boundary, and the page's measured client
-                bundle is unchanged.
+                when it became a dropdown, and this gives two of them back
+                without turning anything into a client component: no
+                `"use client"`, no hydration, no boundary, and — the
+                property worth stating, because it is the one a grep can
+                still check after this comment goes stale — every byte of
+                it lands in the server-rendered HTML and none in either
+                route's client bundle. (No byte count here on purpose: the
+                last one was wrong within a single commit of being
+                written.)
 
                 Delegated on `document` rather than bound to the element,
                 deliberately: that works whether React renders this script
                 in place or hoists it, survives a client-side navigation
                 (pagination, "Clear filters") because `document` outlives
                 the re-render, and needs no DOMContentLoaded guard. The
-                flag makes a second execution a no-op.
+                flag makes a second execution a no-op. The document class
+                it sets is what reveals the hint above — see there.
 
-                Debounced by AUTO_SUBMIT_DELAY_MS, and that is an
-                accessibility fix rather than a performance one. Firefox
-                on Windows fires `change` on every arrow key while a
-                CLOSED select has focus, so an undebounced handler turns
+                Debounced by AUTO_SUBMIT_DELAY_MS, which is an
+                accessibility mitigation and not a performance tune.
+                Firefox on Windows fires `change` on every arrow key while
+                a CLOSED select has focus, so an undebounced handler turns
                 one keyboard user stepping through fifteen org types into
-                fifteen navigations — WCAG 3.2.2 (On Input), and not
-                something the Search button rescues, because nobody who
-                hits it learns they should have used the button instead.
-                Collapsing the burst gives the keyboard user the same
-                single navigation a mouse user already gets, whose
-                `change` fires once on commit.
+                fifteen navigations. The debounce collapses that burst
+                into the single navigation a mouse user already gets,
+                whose `change` fires once on commit — it reduces how often
+                the context changes. It does NOT make the change
+                announced, and one unannounced change of context still
+                fails WCAG 3.2.2 (On Input), for mouse users too. The
+                visible hint above is what closes that, via technique G13.
+
+                Cancelled on `focusout`. Without it the timer belonged to
+                the select but outlived the user's attention on it: commit
+                a type, Tab into "Name or description", type two
+                characters, and the pending submit fires — carrying the
+                half-typed text as `q` and taking focus away mid-word.
+                `focusout` rather than `blur` because blur does not bubble
+                and this listener is delegated.
 
                 Degrades perfectly: without JS the Search button — which
-                stays — submits the identical form to the identical URL.
+                stays — submits the identical form to the identical URL,
+                and the hint stays hidden because it would not be true.
                 ES5 on purpose: inline scripts are not transpiled, and a
                 parse error here would silently drop the enhancement. The
                 timer lives in an IIFE so nothing is added to `window`
@@ -306,12 +354,15 @@ export default async function FacilitiesPage({
             <script
               dangerouslySetInnerHTML={{
                 __html:
-                  "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;(function(){" +
+                  "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;" +
+                  "document.documentElement.classList.add('js-autosubmit');(function(){" +
                   "var d;document.addEventListener('change',function(e){var t=e.target;" +
                   "if(!t||t.id!=='facility-type'||!t.form)return;clearTimeout(d);" +
                   "d=setTimeout(function(){var f=t.form;if(!f)return;" +
                   "if(f.requestSubmit)f.requestSubmit();else f.submit();}," +
-                  `${AUTO_SUBMIT_DELAY_MS});});})();}`,
+                  `${AUTO_SUBMIT_DELAY_MS});});` +
+                  "document.addEventListener('focusout',function(e){" +
+                  "if(e.target&&e.target.id==='facility-type')clearTimeout(d);});})();}",
               }}
             />
 
