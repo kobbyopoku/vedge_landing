@@ -9,10 +9,61 @@ import {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8050";
 
 /**
+ * How long any public read may take before we stop waiting for it.
+ *
+ * **Without this, the static fallback below does not actually work.** It
+ * catches a fetch that *fails* — `ECONNREFUSED` when nothing is
+ * listening, `ENOTFOUND` when DNS is gone. It does nothing at all for a
+ * backend that accepts the connection and then never answers, because
+ * that raises no error to catch: the fetch simply waits, forever.
+ * Measured on this repo before this constant existed, a build against a
+ * connect-and-stall backend was still hung at "Collecting page data"
+ * when it was force-killed at 120 seconds. `/facilities` is a dynamic
+ * route, so every production request could hang the same way.
+ *
+ * **Why 8 seconds.** Two ceilings and one floor.
+ *
+ * The floor: it must sit far above a healthy response, or a
+ * slow-but-working backend silently empties a directory that would have
+ * rendered. These endpoints are served behind a five-minute
+ * `Cache-Control` and a partial index built for exactly this query, so a
+ * healthy p99 is low hundreds of milliseconds even across a
+ * trans-Atlantic hop. Eight seconds is roughly an order of magnitude of
+ * headroom over that.
+ *
+ * The first ceiling: it must fire *before* the hosting platform's own
+ * function timeout, or the protection is theoretical — the platform
+ * kills the function first and the visitor gets a 504 instead of our
+ * fallback. Vercel's default Node function budget is 10s on the
+ * tightest plan, so 8s wins that race with margin on every plan.
+ *
+ * The second ceiling: it bounds a bad build. A stalled backend costs at
+ * most this long per call site, and the call sites self-limit — when
+ * `generateStaticParams` times out it falls back to an empty list, so no
+ * per-facility fetches follow it. Worst case is a handful of these, not
+ * one per facility.
+ *
+ * The consumer here is a crawler or a build, not an impatient human, so
+ * this is deliberately more patient than a UI fetch would be — but not
+ * so patient that the protection stops protecting.
+ */
+const FETCH_TIMEOUT_MS = 8_000;
+
+/**
  * Fetch options shared by every public read on this site: no-store in
  * dev so a local backend change shows up immediately, 5-minute ISR in
- * production. Extracted so `plans` and `facilities` cannot drift into
- * two different caching stories.
+ * production, and a deadline on all of them. Extracted so `plans` and
+ * `facilities` cannot drift into two different caching — or two
+ * different timeout — stories.
+ *
+ * Called per request, so each fetch gets its own signal with its own
+ * clock rather than sharing one deadline across a page's worth of calls.
+ *
+ * The signal is safe to combine with ISR: Next's patched fetch passes it
+ * straight through to the origin fetch and strips it only when
+ * refreshing an already-stale entry in the background — a fetch nobody
+ * is waiting on, which is the one place a deadline would be pointless
+ * anyway. Caching is not disabled by its presence.
  */
 function publicFetchInit(): RequestInit {
   const isDev = process.env.NODE_ENV === "development";
@@ -21,6 +72,11 @@ function publicFetchInit(): RequestInit {
     // In production: ISR revalidates every 5 minutes.
     cache: isDev ? "no-store" : undefined,
     ...(!isDev && { next: { revalidate: 300 } }),
+    // Rejects with a TimeoutError, which every call site below treats as
+    // the failure it is: `getPlans` and `getFacilities` fall back,
+    // `getFacility` re-throws so a stalled backend surfaces as a fast
+    // 5xx rather than a fabricated 404.
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   };
 }
 
