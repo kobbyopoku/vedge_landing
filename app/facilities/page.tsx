@@ -21,6 +21,32 @@ import { LEGAL_CONFIG } from "../_lib/legal/config";
  */
 const SITE_URL = LEGAL_CONFIG.urls.marketing;
 
+/**
+ * How long the type dropdown waits after a `change` before submitting.
+ *
+ * This number is an accessibility threshold, not a performance tune. On
+ * Firefox/Windows a CLOSED `<select>` fires `change` on every arrow key,
+ * so an undebounced auto-submit turns one keyboard user walking the
+ * fifteen org types into fifteen navigations — WCAG 3.2.2 (On Input).
+ * The window has to outlast the gap between keystrokes so a whole walk
+ * collapses into one navigation.
+ *
+ * **Lower bound.** Deliberate arrow-key stepping while reading each
+ * option sits around 150-300ms per press, and held-key auto-repeat is far
+ * faster still (~30ms after the OS's initial delay). 450ms clears both
+ * with margin, so scanning the list never navigates mid-scan.
+ *
+ * **Upper bound.** For a mouse user — whose `change` already fires once,
+ * on commit — this delay is pure added latency, so it has to stay under
+ * the ~1s boundary past which a UI stops feeling like it is responding to
+ * you. 450ms is comfortably inside it and reads as "the page reacted",
+ * not "the page hung".
+ *
+ * 450ms is the middle of that band rather than either edge, because both
+ * edges are estimates of human timing rather than measured constants.
+ */
+const AUTO_SUBMIT_DELAY_MS = 450;
+
 /** Next 16 hands both `params` and `searchParams` to a page as promises. */
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -36,11 +62,18 @@ type Filters = {
   /** Only ever a value from {@link FACILITY_TYPES}; anything else is dropped. */
   type?: string;
   country?: string;
-  /** Matches a facility's own city, or any active branch's city, region, or address. */
+  /**
+   * Matches a facility's own city or street address, or any active
+   * branch's city, region, or address.
+   */
   location?: string;
   /** Matches a facility's own name and description only — geography lives in {@link location}. */
   q?: string;
-  /** Contains-match on a facility's published service names, e.g. "MRI". */
+  /**
+   * Contains-match over a facility's published services — description,
+   * code, modality and body part, the same four the facility page's own
+   * filter matches.
+   */
   service?: string;
   /** Zero-based. */
   page: number;
@@ -252,19 +285,33 @@ export default async function FacilitiesPage({
                 the re-render, and needs no DOMContentLoaded guard. The
                 flag makes a second execution a no-op.
 
+                Debounced by AUTO_SUBMIT_DELAY_MS, and that is an
+                accessibility fix rather than a performance one. Firefox
+                on Windows fires `change` on every arrow key while a
+                CLOSED select has focus, so an undebounced handler turns
+                one keyboard user stepping through fifteen org types into
+                fifteen navigations — WCAG 3.2.2 (On Input), and not
+                something the Search button rescues, because nobody who
+                hits it learns they should have used the button instead.
+                Collapsing the burst gives the keyboard user the same
+                single navigation a mouse user already gets, whose
+                `change` fires once on commit.
+
                 Degrades perfectly: without JS the Search button — which
-                stays, and is the only path for anyone whose browser fires
-                `change` per arrow key on a closed select — still submits
-                the identical form to the identical URL. ES5 on purpose:
-                inline scripts are not transpiled, and a parse error here
-                would silently drop the enhancement. */}
+                stays — submits the identical form to the identical URL.
+                ES5 on purpose: inline scripts are not transpiled, and a
+                parse error here would silently drop the enhancement. The
+                timer lives in an IIFE so nothing is added to `window`
+                beyond the one re-execution flag. */}
             <script
               dangerouslySetInnerHTML={{
                 __html:
-                  "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;" +
-                  "document.addEventListener('change',function(e){var t=e.target;" +
-                  "if(!t||t.id!=='facility-type'||!t.form)return;" +
-                  "if(t.form.requestSubmit)t.form.requestSubmit();else t.form.submit();});}",
+                  "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;(function(){" +
+                  "var d;document.addEventListener('change',function(e){var t=e.target;" +
+                  "if(!t||t.id!=='facility-type'||!t.form)return;clearTimeout(d);" +
+                  "d=setTimeout(function(){var f=t.form;if(!f)return;" +
+                  "if(f.requestSubmit)f.requestSubmit();else f.submit();}," +
+                  `${AUTO_SUBMIT_DELAY_MS});});})();}`,
               }}
             />
 
