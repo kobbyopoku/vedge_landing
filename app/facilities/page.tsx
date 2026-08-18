@@ -336,13 +336,43 @@ export default async function FacilitiesPage({
                 fails WCAG 3.2.2 (On Input), for mouse users too. The
                 visible hint above is what closes that, via technique G13.
 
-                Cancelled on `focusout`. Without it the timer belonged to
-                the select but outlived the user's attention on it: commit
-                a type, Tab into "Name or description", type two
-                characters, and the pending submit fires — carrying the
-                half-typed text as `q` and taking focus away mid-word.
-                `focusout` rather than `blur` because blur does not bubble
-                and this listener is delegated.
+                Cancelled on `focusout`, but ONLY when focus lands on
+                something the user types into. Without any cancel the
+                timer belonged to the select and outlived the user's
+                attention on it: commit a type, Tab into "Name or
+                description", type two characters, and the pending submit
+                fires — carrying the half-typed text as `q` and taking
+                focus away mid-word. `focusout` rather than `blur` because
+                blur does not bubble and this listener is delegated.
+
+                <b>Do not simplify this to a blanket `focusout` cancel.</b>
+                That is the bigger hammer it looks like it should be, and
+                it is quietly dangerous on the platform most of these
+                visitors use: if a native picker's dismissal fires
+                `focusout` between `change` and the timer, a blanket
+                cancel kills auto-submit on mobile outright — silently,
+                and while the hint above is still promising "searches
+                straight away". A benign fallback plus a false promise is
+                not benign. Narrowing to text-entry targets removes that
+                risk by construction rather than by hoping about event
+                order: a picker dismissal never lands focus on a text
+                input, so whatever order iOS or Android fire their events
+                in, this cancel cannot trigger spuriously.
+
+                `acceptsText` is an allowlist, because the safe direction
+                here is NOT to cancel. `<textarea>`, and `<input>` whose
+                effective type is text, search, email, tel, url, password
+                or number. Effective, not the attribute: `.type` reports
+                "text" both for an input with no type and for one with an
+                unrecognised type, which is what the browser does with
+                them anyway. Deliberately excluded — `<select>` (the type
+                dropdown itself included), buttons and submits (so tabbing
+                to Search leaves the pending submit alone, which is
+                harmless: it goes to the same URL), checkbox, radio,
+                range, file, colour and the date/time family, and
+                `contenteditable`, which nothing on this form uses. A null
+                `relatedTarget` — focus leaving to nothing at all — is also
+                not a cancel, same safe direction.
 
                 Degrades perfectly: without JS the Search button — which
                 stays — submits the identical form to the identical URL,
@@ -361,8 +391,13 @@ export default async function FacilitiesPage({
                   "d=setTimeout(function(){var f=t.form;if(!f)return;" +
                   "if(f.requestSubmit)f.requestSubmit();else f.submit();}," +
                   `${AUTO_SUBMIT_DELAY_MS});});` +
+                  "function a(n){if(!n)return false;var g=n.tagName;" +
+                  "if(g==='TEXTAREA')return true;if(g!=='INPUT')return false;" +
+                  "return '|text|search|email|tel|url|password|number|'" +
+                  ".indexOf('|'+n.type+'|')>-1;}" +
                   "document.addEventListener('focusout',function(e){" +
-                  "if(e.target&&e.target.id==='facility-type')clearTimeout(d);});})();}",
+                  "if(!e.target||e.target.id!=='facility-type')return;" +
+                  "if(a(e.relatedTarget))clearTimeout(d);});})();}",
               }}
             />
 
