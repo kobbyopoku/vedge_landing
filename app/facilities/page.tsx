@@ -200,7 +200,7 @@ export default async function FacilitiesPage({
   searchParams: SearchParams;
 }) {
   const filters = readFilters(await searchParams);
-  const { facilities, page, totalPages, totalElements } = await getFacilities({
+  const { facilities, page, totalPages, totalElements, unavailable } = await getFacilities({
     type: filters.type,
     country: filters.country,
     location: filters.location,
@@ -480,18 +480,27 @@ export default async function FacilitiesPage({
       {/* ═══════════════ RESULTS ═══════════════ */}
       <section className="py-16 md:py-20">
         <Container>
-          <p
-            className="font-mono text-[10px] uppercase tracking-kicker text-ink/55"
-            aria-live="polite"
-          >
-            {totalElements === 1 ? "1 facility" : `${totalElements} facilities`}
-            {typeLabel ? ` · ${typeLabel}` : ""}
-            {filters.location ? ` · ${filters.location}` : ""}
-            {filters.service ? ` · “${filters.service}”` : ""}
-            {filters.q ? ` · “${filters.q}”` : ""}
-          </p>
+          {/* The count is a claim about the directory, so it is not
+              rendered when we have no idea what the directory contains.
+              "0 facilities · Pharmacies · Kumasi" under an unreachable
+              backend is a precise, confident, wrong answer — and the
+              precision is what makes it convincing. */}
+          {!unavailable && (
+            <p
+              className="font-mono text-[10px] uppercase tracking-kicker text-ink/55"
+              aria-live="polite"
+            >
+              {totalElements === 1 ? "1 facility" : `${totalElements} facilities`}
+              {typeLabel ? ` · ${typeLabel}` : ""}
+              {filters.location ? ` · ${filters.location}` : ""}
+              {filters.service ? ` · “${filters.service}”` : ""}
+              {filters.q ? ` · “${filters.q}”` : ""}
+            </p>
+          )}
 
-          {facilities.length === 0 ? (
+          {unavailable ? (
+            <DirectoryUnavailable retryHref={directoryHref(filters)} />
+          ) : facilities.length === 0 ? (
             <EmptyState hasNarrowing={hasNarrowing} />
           ) : (
             <ul className="mt-10 grid grid-cols-1 gap-px border border-ink/15 bg-ink/15 md:grid-cols-2 lg:grid-cols-3">
@@ -548,7 +557,7 @@ export default async function FacilitiesPage({
                 Your page is <span className="italic-display !text-sun">already yours.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-6 max-w-xl text-bone/75">
-                Every facility on Vedge gets a directory page the moment it writes a description — nothing to buy, nothing to apply for. Write it in your settings screen, or opt out entirely and keep the profile.
+                Every facility on Vedge gets a directory page — nothing to buy, nothing to apply for, nothing to write first. Add a description in your settings screen to say more about yourself, or opt out entirely and keep the profile.
               </p>
             </div>
             <div className="col-span-12 md:col-span-5 md:border-l md:border-bone/20 md:pl-10">
@@ -655,15 +664,62 @@ function FacilityCard({ facility }: { facility: Facility }) {
 }
 
 /**
- * The empty state.
+ * **We could not reach the backend.** Rendered instead of the empty
+ * state, never alongside it.
  *
- * **It says the same thing whether the directory is empty, the filters
- * matched nothing, or the backend is unreachable — and that is
- * deliberate.** This page cannot tell those apart and must not pretend
- * to: `getFacilities` returns an empty list for a legitimately empty
- * directory and for a failed fetch alike, by design. The only signal it
- * does have is whether the visitor narrowed anything, which is the one
- * distinction worth making, because it changes what they should do next.
+ * This used to be impossible to say. `getFacilities` collapsed a failed
+ * fetch into the same empty array a legitimately empty directory
+ * produces, and the comment that used to sit on {@link EmptyState}
+ * argued that the page "cannot tell those apart and must not pretend
+ * to". The first half was true and the second half was the right
+ * instinct — but the conclusion was wrong, because the information was
+ * not missing, it was being discarded one layer down. `getFacilities`
+ * knew perfectly well that its fetch threw; it simply had nowhere to
+ * put that. {@link FacilityPage.unavailable} is that place.
+ *
+ * Why it matters enough to be its own component: "Nothing here matches
+ * that yet" is a **statement about the directory**, and a visitor who
+ * reads it concludes that the pharmacy they are looking for is not on
+ * Vedge. During a backend blip that conclusion is false, it is
+ * actionable, and they act on it by leaving. An outage that shows an
+ * error is a bad minute; an outage that quietly reports "no results" is
+ * a wrong answer with no expiry.
+ *
+ * The retry is a plain `<a>`, not a `<Link>`, and deliberately so: a
+ * client-side navigation to the URL we are already on can be a no-op,
+ * which would give the visitor a button that visibly does nothing. A
+ * full document request re-runs the fetch, which is the entire point of
+ * the control. It carries the current filters so a retry does not also
+ * silently discard what they searched for.
+ */
+function DirectoryUnavailable({ retryHref }: { retryHref: string }) {
+  return (
+    <div className="mt-10 border border-clay/40 bg-clay/[0.06] px-8 py-20 text-center">
+      <p className="mx-auto max-w-lg font-display text-2xl leading-snug text-ink/80">
+        We couldn’t reach the directory just now.
+      </p>
+      <p className="mx-auto mt-4 max-w-lg text-sm text-ink/60">
+        This is a fault on our side, not a result — facilities matching what you asked for may
+        well be listed. Nothing is wrong with your search.
+      </p>
+      <div className="mt-8">
+        <a href={retryHref} className="btn-ghost">
+          Try again
+          <span aria-hidden="true" className="inline-block translate-y-[-1px]">→</span>
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The empty state — **a real, successful, empty answer.**
+ *
+ * It no longer has to stand in for a failed fetch as well: that case is
+ * {@link DirectoryUnavailable}, and the two are now mutually exclusive
+ * at the call site. What is left here is the distinction that was
+ * always worth making — whether the visitor narrowed anything — because
+ * that is what changes what they should do next.
  */
 function EmptyState({ hasNarrowing }: { hasNarrowing: boolean }) {
   return (
@@ -676,7 +732,7 @@ function EmptyState({ hasNarrowing }: { hasNarrowing: boolean }) {
       <p className="mx-auto mt-4 max-w-lg text-sm text-ink/60">
         {hasNarrowing
           ? "Try a broader type, or clear the filters and browse everything listed."
-          : "A facility appears here once it has written its own description — so this page grows as facilities join and fill theirs in."}
+          : "A facility appears here as soon as it is set up on Vedge and has not opted out — so this page grows as facilities come on board."}
       </p>
       {hasNarrowing && (
         <div className="mt-8">

@@ -259,6 +259,29 @@ export type FacilityPage = {
   size: number;
   totalPages: number;
   totalElements: number;
+  /**
+   * **True when we never got an answer, false when the answer was "none".**
+   *
+   * Without this field the two are the same value — an empty
+   * `facilities` array with `totalElements: 0` — and every consumer of
+   * this type is then forced to guess. `/facilities` guessed "no
+   * facilities match your filters", which is a sentence we render to a
+   * visitor as a statement of fact about the directory while the actual
+   * fact is that we could not reach the server. That is not a degraded
+   * empty state; it is a wrong answer delivered confidently.
+   *
+   * The distinction exists here rather than at the call site because
+   * this is the only layer that knows: `fetchFacilities` either
+   * returned or threw, and one line further out that difference has
+   * already been flattened into an array length.
+   *
+   * Note what this is **not**: it is not "the list is empty". A
+   * successful fetch that legitimately returns zero rows leaves this
+   * `false`, because a near-empty directory is the expected launch
+   * state and the correct answer, not a symptom. Read it as
+   * "unreachable", never as "empty".
+   */
+  unavailable: boolean;
 };
 
 /** Every filter `GET /api/public/facilities` accepts. All optional. */
@@ -462,6 +485,9 @@ async function fetchFacilities(query: FacilityQuery): Promise<FacilityPage> {
     size: counters.size ?? (query.size ?? FACILITY_PAGE_SIZE),
     totalPages: counters.totalPages ?? 0,
     totalElements: counters.totalElements ?? 0,
+    // We got an answer. It may be an empty one, and an empty one is a
+    // real answer — see the field's own note.
+    unavailable: false,
   };
 }
 
@@ -475,14 +501,33 @@ async function fetchFacilities(query: FacilityQuery): Promise<FacilityPage> {
  * `staticPlans`, which is right for a catalogue we seed ourselves: a
  * pricing page with no prices is always a bug. This directory is the
  * opposite. It launches near-empty by design — a facility appears only
- * once it has written its own description, and nothing seeds one — so
- * "no facilities yet" is the true answer, not a symptom. Falling back on
- * empty would replace a correct empty state with stale marketing rows
+ * once it is set up on Vedge with a public slug, and nothing seeds one —
+ * so "no facilities yet" is the true answer, not a symptom. Falling back
+ * on empty would replace a correct empty state with stale marketing rows
  * and hide the very outcome the launch is measuring.
+ *
+ * (Until backend `c8e53df` this paragraph also said "once it has written
+ * its own description". That clause is gone from the listing rule, which
+ * makes the directory fill up faster — and makes this reasoning stronger
+ * rather than weaker, since the empty state now really does mean nobody
+ * is on the platform yet.)
  *
  * So: fall back **only on a throw**. If you are here because this looks
  * inconsistent with `getPlans` twenty lines up, it is inconsistent on
  * purpose — please read the paragraph above before "fixing" it.
+ *
+ * **And when it does throw, say so.** That reasoning above is about
+ * *rows*, and it is still right: there is no honest static copy of a
+ * directory, so a failure yields no rows. But for a long time it also
+ * silently decided that the failure itself was not worth reporting, and
+ * the two are separate questions. Returning `facilitiesFallback` with no
+ * marker made a five-minute backend outage indistinguishable from a
+ * genuinely empty directory, and `/facilities` answered it with "nothing
+ * here matches that yet" — a confident claim about the directory's
+ * contents made at the exact moment we knew nothing about them.
+ * {@link FacilityPage.unavailable} carries that one bit out so the page
+ * can tell the visitor the truth. The rows do not change; only our
+ * willingness to admit where they went.
  */
 export async function getFacilities(query: FacilityQuery = {}): Promise<FacilityPage> {
   try {
@@ -495,6 +540,7 @@ export async function getFacilities(query: FacilityQuery = {}): Promise<Facility
       size: query.size ?? FACILITY_PAGE_SIZE,
       totalPages: facilitiesFallback.length > 0 ? 1 : 0,
       totalElements: facilitiesFallback.length,
+      unavailable: true,
     };
   }
 }
@@ -505,10 +551,16 @@ export async function getFacilities(query: FacilityQuery = {}): Promise<Facility
  * @returns the facility, or `null` when the API answered 404 — which it
  *          does both for a slug that does not exist and for a facility
  *          that is not listed, **deliberately indistinguishably**
- *          (`PublicFacilityDirectoryService.NOT_FOUND_REASON`). Whether
- *          a facility has written a description is not something the
- *          endpoint discloses, so there is nothing here that tries to
- *          tell the two apart, and nothing should be added that does.
+ *          (`PublicFacilityDirectoryService.NOT_FOUND_REASON`). Since
+ *          backend `c8e53df` that conflation hides exactly one thing
+ *          rather than two — not "they never wrote a description", which
+ *          is no longer a reason to be unlisted, but "they asked to be
+ *          delisted". That makes the silence matter *more*, not less: a
+ *          tenant who opted out has asked not to be findable, and an
+ *          endpoint that distinguished 404-unknown from 404-opted-out
+ *          would hand that fact to anyone who guessed a slug. So there
+ *          is nothing here that tries to tell the two apart, and nothing
+ *          should be added that does.
  *
  * @throws on a transport failure or any non-404 error status — and that
  *         is the one place this function deliberately refuses to fall
@@ -547,11 +599,27 @@ export const MAX_SITEMAP_PAGES = 5;
  *
  * Partial results are kept rather than discarded: a sitemap listing the
  * first 500 facilities is strictly better than one listing none.
+ *
+ * A failed page stops the walk rather than being counted as the end of
+ * the directory. Both outcomes truncate the list, so this changes no
+ * bytes of the sitemap — it changes what a reader of the logs is told,
+ * which is the whole difference between "the directory has 200
+ * facilities" and "we could see 200 of them". The caller still gets a
+ * plain array, because a partial sitemap needs no marker: it omits URLs
+ * it could not confirm, which is the conservative direction, and the
+ * next revalidation five minutes later restores them.
  */
 export async function getAllFacilities(limitPages = MAX_SITEMAP_PAGES): Promise<Facility[]> {
   const all: Facility[] = [];
   for (let page = 0; page < limitPages; page++) {
     const result = await getFacilities({ page, size: MAX_FACILITY_PAGE_SIZE });
+    if (result.unavailable) {
+      console.warn(
+        `Facilities directory unreachable at page ${page}; sitemap and prerender ` +
+          `carry the ${all.length} facilities read so far, not the whole directory.`,
+      );
+      break;
+    }
     all.push(...result.facilities);
     if (result.facilities.length === 0 || page + 1 >= result.totalPages) break;
   }

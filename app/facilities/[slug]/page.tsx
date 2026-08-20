@@ -7,7 +7,11 @@ import { KenteDivider } from "../../_components/KenteDivider";
 import {
   branchDirectionsUrl,
   branchLocationLabel,
+  facilityFactPhrases,
+  facilityHasIndexableSubstance,
+  facilityJsonLd,
   facilityTypeLabel,
+  joinPhrases,
   locationLabel,
   type FacilityBranch,
   type FacilityDetail,
@@ -44,12 +48,41 @@ export async function generateStaticParams() {
   return facilities.map((facility) => ({ slug: facility.slug }));
 }
 
-/** Meta descriptions get truncated around 160 characters; cut at a word. */
-function metaDescription(facility: FacilityDetail): string {
+/**
+ * The one-line summary of a facility, in the facility's own terms —
+ * `"Diagnostic centre in Accra, Ghana"`. Never empty: `facilityTypeLabel`
+ * falls back to `"Facility"` for an unknown or absent `orgType`, and the
+ * name is guaranteed by the API mapper.
+ */
+function facilityLead(facility: FacilityDetail): string {
   const location = locationLabel(facility.city, facility.countryCode);
-  const fallback = `${facility.name} — ${facilityTypeLabel(facility.orgType)}${
-    location ? ` in ${location}` : ""
-  }. Hours, services, and contact details on Vedge.`;
+  return `${facilityTypeLabel(facility.orgType)}${location ? ` in ${location}` : ""}`;
+}
+
+/**
+ * Meta descriptions get truncated around 160 characters; cut at a word.
+ *
+ * **The fallback may not describe anything the page does not have.**
+ * Facilities with no description are listed as of backend `c8e53df`, so
+ * this branch is now load-bearing rather than defensive — and its old
+ * wording, "Hours, services, and contact details on Vedge", was a
+ * sentence about three sections that a description-less facility very
+ * often has none of. Writing prose on a facility's behalf is what the
+ * directory's design forbids; asserting content it does not have is the
+ * same offence with worse consequences, because the assertion is what a
+ * searcher reads in the result before deciding to click.
+ *
+ * So the fallback is assembled from {@link facilityFactPhrases}, which
+ * counts the sections this page actually renders. Worst case — a
+ * facility with a name, a type and nothing else — it degrades to
+ * `"Name — Hospital in Accra, Ghana. Listed on Vedge."`, which is short
+ * but is entirely true and is never empty.
+ */
+function metaDescription(facility: FacilityDetail): string {
+  const facts = facilityFactPhrases(facility);
+  const lead = `${facility.name} — ${facilityLead(facility)}.`;
+  const fallback =
+    facts.length > 0 ? `${lead} ${joinPhrases(facts)} on Vedge.` : `${lead} Listed on Vedge.`;
 
   const source = facility.description ?? fallback;
   if (source.length <= 155) return source;
@@ -74,6 +107,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     alternates: { canonical: `${SITE_URL}/facilities/${facility.slug}` },
+    // `noindex, follow` for a page with nothing of its own on it — see
+    // `facilityHasIndexableSubstance`, which explains why the threshold
+    // is substance and deliberately not the description column the
+    // corrected spec names. `follow` so a crawler that lands here still
+    // walks back out to `/facilities`; the page is not being hidden,
+    // only kept out of an index it cannot earn a place in. This is the
+    // same posture `app/facilities/page.tsx#isIndexable` already takes
+    // for the directory's own thin views.
+    ...(facilityHasIndexableSubstance(facility)
+      ? {}
+      : { robots: { index: false, follow: true } }),
     openGraph: {
       title: `${facility.name} · Vedge`,
       description,
@@ -96,6 +140,9 @@ export default async function FacilityPage({ params }: PageProps) {
 
   const location = locationLabel(facility.city, facility.countryCode);
   const accent = facility.accentColorHex;
+  // Only rendered on the no-description path, but computed here so the
+  // page and `generateMetadata` are demonstrably reading one list.
+  const facts = facilityFactPhrases(facility);
   const contactRows = [
     facility.address ? { label: "Address", value: facility.address } : null,
     facility.hours ? { label: "Opening hours", value: facility.hours } : null,
@@ -169,9 +216,40 @@ export default async function FacilityPage({ params }: PageProps) {
       <section className="py-16 md:py-24">
         <Container>
           <div className="grid grid-cols-12 gap-x-6 gap-y-14">
+            {/* ── What this column leads with ──────────────────────
+                With a description: their prose, under "About", exactly
+                as before.
+
+                Without one — a state that only became reachable when
+                the backend dropped the description requirement from its
+                listing rule (`c8e53df`) — this is NOT an "About"
+                heading with an apology under it. That is what it used
+                to be ("This facility has not written a description
+                yet."), and it was three bad things at once: a section
+                header promising prose that never arrives, the first
+                sentence in the body being a negative statement about a
+                tenant on a page we host *for* them, and a paragraph
+                whose entire content is the absence of content — which
+                is the literal definition of the thin-page signal §1 of
+                the directory spec was worried about.
+
+                So the heading changes with the content instead of
+                staying put and being wrong. "At a glance" leads with
+                the single most useful true sentence available — what
+                they are and where — and then names what this page
+                holds. Every word of both comes from a structured field
+                the facility filled in itself; see
+                `facilityFactPhrases`, which is also what the meta
+                description is built from, so the summary and the search
+                result cannot drift apart.
+
+                The fact line doubles as a signpost: a description-less
+                facility's real content is the services and locations
+                further down, and this is the only thing above the fold
+                that says so. ────────────────────────────────────── */}
             <div className="col-span-12 md:col-span-7">
               <p className="font-mono text-[10px] uppercase tracking-kicker text-ink/50">
-                About
+                {facility.description ? "About" : "At a glance"}
               </p>
               {facility.description ? (
                 // `whitespace-pre-line` keeps the facility's own
@@ -181,9 +259,16 @@ export default async function FacilityPage({ params }: PageProps) {
                   {facility.description}
                 </p>
               ) : (
-                <p className="mt-6 text-ink/60">
-                  This facility has not written a description yet.
-                </p>
+                <>
+                  <p className="mt-6 font-display text-xl leading-snug text-ink/85">
+                    {facilityLead(facility)}.
+                  </p>
+                  {facts.length > 0 && (
+                    <p className="mt-5 font-mono text-[10px] uppercase leading-relaxed tracking-kicker text-ink/55">
+                      {facts.join(" · ")}
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
@@ -406,11 +491,16 @@ function BranchCard({ branch, index }: { branch: FacilityBranch; index: number }
 /**
  * schema.org structured data, so a facility page can win a rich result
  * rather than a bare blue link — the difference between a directory
- * being indexed and a directory being *used*.
+ * being indexed and a directory being *used*. Doubly so now that
+ * facilities with no prose are listed: structured data is the lever the
+ * corrected spec (§1.2) names for recovering the search value the
+ * removed content floor used to guarantee, and a facility's branches and
+ * contact rows are real, specific, machine-readable facts even when its
+ * "About" column has nothing to say.
  *
- * `MedicalOrganization` deliberately, not `LocalBusiness`: it is the
- * type Google documents for healthcare providers, and it is the honest
- * description of every `OrgType` in the directory.
+ * The payload itself is built by `facilityJsonLd`, a pure function in
+ * `app/_data/facilities.ts` — put there so it can be asserted on without
+ * a renderer. This component only serialises it.
  *
  * The JSON is emitted through `JSON.stringify` with `<` escaped. That
  * escape is not cosmetic: without it a facility whose description
@@ -418,34 +508,11 @@ function BranchCard({ branch, index }: { branch: FacilityBranch; index: number }
  * profile text into markup on our origin.
  */
 function FacilityJsonLd({ facility }: { facility: FacilityDetail }) {
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "MedicalOrganization",
-    name: facility.name,
-    url: `${SITE_URL}/facilities/${facility.slug}`,
-    ...(facility.description ? { description: facility.description } : {}),
-    ...(facility.logoUrl ? { logo: facility.logoUrl } : {}),
-    ...(facility.website ? { sameAs: [facility.website] } : {}),
-    ...(facility.phone ? { telephone: facility.phone } : {}),
-    ...(facility.email ? { email: facility.email } : {}),
-    ...(facility.hours ? { openingHours: facility.hours } : {}),
-    ...(facility.address || facility.city || facility.countryCode
-      ? {
-          address: {
-            "@type": "PostalAddress",
-            ...(facility.address ? { streetAddress: facility.address } : {}),
-            ...(facility.city ? { addressLocality: facility.city } : {}),
-            ...(facility.countryCode ? { addressCountry: facility.countryCode } : {}),
-          },
-        }
-      : {}),
-  };
-
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        __html: JSON.stringify(facilityJsonLd(facility, SITE_URL)).replace(/</g, "\\u003c"),
       }}
     />
   );
