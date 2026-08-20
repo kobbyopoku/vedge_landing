@@ -91,7 +91,7 @@ describe("getFacilities distinguishes a failure from an empty directory", () => 
     expect(result.facilities).toHaveLength(1);
   });
 
-  it("stops the sitemap walk on a failed page instead of counting it as the end", async () => {
+  it("keeps the pages it did read when a later page fails, rather than throwing", async () => {
     let call = 0;
     globalThis.fetch = vi.fn(async () => {
       call += 1;
@@ -109,10 +109,31 @@ describe("getFacilities distinguishes a failure from an empty directory", () => 
 
     const all = await getAllFacilities(5);
 
-    // Partial results kept, and the walk stopped rather than continuing
-    // to hammer a backend that is already failing.
+    // A sitemap listing the facilities we could confirm beats one
+    // listing none, and beats a build that dies.
     expect(all.map((f) => f.slug)).toEqual(["a"]);
+    // And it stopped, rather than spending the remaining three page
+    // requests on a backend that is already failing.
     expect(call).toBe(2);
+  });
+
+  it("says in the log that a truncated sitemap is truncated", async () => {
+    // The `unavailable` branch in `getAllFacilities` changes no bytes of
+    // the sitemap — the loop would exit on the empty page anyway. What
+    // it changes is whether anyone can tell "the directory has 100
+    // facilities" from "we could see 100 of them", and that only exists
+    // in the log. So the log is what this asserts; without it the branch
+    // would be untested and could be deleted as dead code.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    globalThis.fetch = vi.fn(async () => {
+      throw new TypeError("fetch failed");
+    }) as unknown as typeof fetch;
+
+    await getAllFacilities(5);
+
+    expect(warn.mock.calls.flat().join(" ")).toContain(
+      "Facilities directory unreachable at page 0",
+    );
   });
 });
 
