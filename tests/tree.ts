@@ -82,6 +82,75 @@ export function hrefsIn(node: unknown, found: string[] = []): string[] {
   return found;
 }
 
+/**
+ * The tags that carry a paragraph's worth of meaning, and whose
+ * emptiness is therefore visible to a reader and to a crawler.
+ *
+ * `span` and `div` are deliberately out. The directory card renders a
+ * bare `<span />` as a flex spacer when a facility takes no requests —
+ * that is layout, not prose, and folding it in here would make the
+ * assertion below fire on something nobody can see.
+ */
+const PROSE_TAGS = new Set([
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "li",
+  "blockquote",
+  "figcaption",
+]);
+
+/**
+ * Every prose element in the tree that renders no words.
+ *
+ * <p>The defect this exists to catch has no text to assert against,
+ * which is why the rest of this file cannot catch it: an unconditional
+ * `<p>{facility.shortDescription}</p>` over a null description emits
+ * `<p></p>`, and {@link renderedText} sees exactly the same string it
+ * saw before. The page reads correctly and ships an empty node — the
+ * thin-page signal the whole description-less change set out to remove,
+ * put back by the markup.</p>
+ *
+ * <p>Stated as a property rather than as a count of `<p>` tags, so it
+ * keeps holding when the card gains a paragraph or loses one.</p>
+ */
+export function emptyProseBlocks(node: unknown, found: string[] = []): string[] {
+  if (!node || typeof node !== "object") return found;
+  if (Array.isArray(node)) {
+    node.forEach((child) => emptyProseBlocks(child, found));
+    return found;
+  }
+
+  const element = node as { type?: unknown; props?: Record<string, unknown> };
+  const type = element.type;
+
+  if (typeof type === "function") {
+    // Muted for the reason `walk` mutes it: a client component throws
+    // "Invalid hook call" here and logs first, and that is expected.
+    const error = console.error;
+    console.error = () => {};
+    try {
+      emptyProseBlocks((type as (p: unknown) => unknown)(element.props ?? {}), found);
+      return found;
+    } catch {
+      // Not callable as a plain function — fall through to its children.
+    } finally {
+      console.error = error;
+    }
+  } else if (typeof type === "string" && PROSE_TAGS.has(type)) {
+    if (renderedText(element.props?.children) === "") found.push(type);
+  }
+
+  if (element.props && "children" in element.props) {
+    emptyProseBlocks(element.props.children, found);
+  }
+  return found;
+}
+
 
 /**
  * The tree's visible text, as one string.

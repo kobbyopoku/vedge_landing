@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { aSummary } from "./fixtures";
-import { hrefsIn, renderedText, walk } from "./tree";
+import { emptyProseBlocks, hrefsIn, renderedText, walk } from "./tree";
 
 /**
  * The directory: `getFacilities` at the fetch boundary, and what
@@ -126,6 +126,68 @@ describe("/facilities metadata during an outage", () => {
     const meta = await mod.generateMetadata({ searchParams: Promise.resolve({ type: "PHARMACY" }) });
 
     expect(meta.robots).toBeUndefined();
+  });
+});
+
+/**
+ * The populated grid — which had no test at all. `renderDirectory` was
+ * only ever called with the empty and the unreachable fixtures, and the
+ * one populated case called `generateMetadata` rather than the page, so
+ * no test in this suite had ever rendered a `FacilityCard`.
+ *
+ * That is what made `landing-report.md`'s claim that the card's
+ * supporting `<p>` was "pinned by tests" wrong: making the `<p>`
+ * unconditional left the suite 55/55 green.
+ */
+describe("a directory card for a facility with no description", () => {
+  const CARD_PROSE = "Same-day imaging in central Accra.";
+
+  async function renderGrid(facility = aSummary()) {
+    const mod = await import("../app/facilities/page");
+    getFacilities.mockResolvedValue({
+      ...AVAILABLE_EMPTY,
+      facilities: [facility],
+      totalElements: 1,
+      totalPages: 1,
+    });
+    return mod.default({ searchParams: Promise.resolve({}) });
+  }
+
+  it("renders no empty prose block where the description would have gone", async () => {
+    // The whole point of widening LISTED_PREDICATE is that
+    // `shortDescription` is now routinely null, so this is the ordinary
+    // card and not an edge case.
+    const tree = await renderGrid(aSummary({ shortDescription: null }));
+
+    expect(emptyProseBlocks(tree))
+      // An unconditional <p> reads identically — same words, same
+      // layout — and ships `<p></p>`, which is the thin-page signal this
+      // change exists to remove, reintroduced by the markup rather than
+      // by the copy.
+      .toEqual([]);
+  });
+
+  it("still renders the description when the facility has written one", async () => {
+    // What stops the assertion above from being satisfied by a card that
+    // never renders a description at all.
+    const tree = await renderGrid(aSummary({ shortDescription: CARD_PROSE }));
+
+    expect(renderedText(tree)).toContain(CARD_PROSE);
+    expect(emptyProseBlocks(tree)).toEqual([]);
+  });
+
+  it("still says who the facility is when it has no description", async () => {
+    // The card must not degrade into a blank tile: the name and the
+    // type/location line carry it, and those are unconditional on
+    // purpose.
+    const tree = await renderGrid(
+      aSummary({ name: "Ridge Diagnostics", city: "Accra", countryCode: "GHA" }),
+    );
+    const text = renderedText(tree);
+
+    expect(text).toContain("Ridge Diagnostics");
+    expect(text).toContain("Accra");
+    expect(text).not.toContain(CARD_PROSE);
   });
 });
 

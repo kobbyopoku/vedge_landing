@@ -64,7 +64,14 @@ describe("getFacilities distinguishes a failure from an empty directory", () => 
     expect((await getFacilities()).unavailable).toBe(true);
   });
 
-  it("reports a timeout as unavailable", async () => {
+  it("reports an abort as unavailable, like any other thrown fetch", async () => {
+    // Renamed from "reports a timeout as unavailable", which claimed
+    // more than it proves. The error is hand-made and lands in the same
+    // generic catch `reports a transport failure` already covers, so
+    // FETCH_TIMEOUT_MS and `AbortSignal.timeout` (api.ts:80) can both be
+    // deleted with this green. What it does pin is that a TimeoutError
+    // is not treated as a special case somewhere and turned into an
+    // empty-but-available directory.
     globalThis.fetch = vi.fn(async () => {
       throw Object.assign(new Error("The operation was aborted due to timeout"), {
         name: "TimeoutError",
@@ -114,7 +121,40 @@ describe("getFacilities distinguishes a failure from an empty directory", () => 
     expect(all.map((f) => f.slug)).toEqual(["a"]);
     // And it stopped, rather than spending the remaining three page
     // requests on a backend that is already failing.
+    //
+    // This is the OUTAGE break and only that. It says nothing about the
+    // pagination terminator on the line below it in `getAllFacilities`,
+    // which never runs here — see the next test, which does not fail.
     expect(call).toBe(2);
+  });
+
+  it("stops at the last page instead of walking to the page limit", async () => {
+    // The terminator `if (result.facilities.length === 0 || page + 1 >=
+    // result.totalPages) break;`, which nothing pinned: deleting it left
+    // the whole suite green while turning every sitemap build into
+    // `limitPages` sequential requests against a rate-limited public
+    // endpoint. The sibling test above cannot catch it, because its
+    // walk ends on the outage break before the terminator is reached.
+    let call = 0;
+    globalThis.fetch = vi.fn(async () => {
+      call += 1;
+      return jsonResponse({
+        content: [{ slug: `p${call}`, name: `P${call}`, acceptsRequests: false }],
+        totalElements: 2,
+        totalPages: 2,
+        number: call - 1,
+        size: 100,
+      });
+    }) as unknown as typeof fetch;
+
+    const all = await getAllFacilities(5);
+
+    expect(all.map((f) => f.slug)).toEqual(["p1", "p2"]);
+    expect(call)
+      // Two pages exist, so two requests. Five would mean the loop is
+      // running to its ceiling and asking a healthy backend for pages it
+      // has already been told do not exist.
+      .toBe(2);
   });
 
   it("says in the log that a truncated sitemap is truncated", async () => {
