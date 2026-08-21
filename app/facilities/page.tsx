@@ -66,12 +66,19 @@ const AUTO_SUBMIT_DELAY_MS = 450;
  * filter that appears to work and does nothing, which a visitor reads as
  * the directory being broken rather than as the directory being small.
  *
- * This is the number that makes the filter **invisible today and visible
- * the day it means something**, with no deploy and no flag: the option set
+ * This is the number that keeps the filter **absent today and present the
+ * day it means something**, with no deploy and no flag: the option set
  * comes from `getServiceCategories`, which is the backend running the
  * directory's own list query once per category. The first facility to
  * publish a lab tariff takes the count from one to two and the control
  * appears — for everyone, on the next revalidation.
+ *
+ * (The wording above avoids one particular word on purpose. Tailwind's
+ * scanner reads these files as raw text, comments included, so a prose
+ * mention of a utility name emits that utility into the site-wide
+ * stylesheet — measured: one such word here was the whole of this
+ * branch's payload delta, 29 raw / 6 gzipped bytes of a rule nothing
+ * uses, shipped to every visitor of every page.)
  *
  * Not a disabled control and not a single-option select, both of which
  * would advertise a capability the directory does not have yet.
