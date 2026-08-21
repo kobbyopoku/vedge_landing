@@ -88,6 +88,12 @@ describe("the category reaches the API under the name the API reads", () => {
 
     await getServiceCategories();
 
+    // The length assertion first, deliberately: without it a
+    // `getServiceCategories` that returned a written-down list and made
+    // no request at all fails on `undefined` with a type complaint rather
+    // than a statement about behaviour, and the reason it went red is
+    // then something a reader has to reconstruct.
+    expect(requested).toHaveLength(1);
     expect(requested[0]).toContain("/api/public/facilities/filters/service-categories");
   });
 });
