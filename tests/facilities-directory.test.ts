@@ -29,9 +29,20 @@ afterEach(() => {
 // ── what the page does with it ───────────────────────────────────────
 
 const getFacilities = vi.hoisted(() => vi.fn());
+/**
+ * Stubbed alongside `getFacilities` so `/facilities` does not make a real
+ * network call from these tests. It is not what they are about — the
+ * category filter has its own file — but leaving it unstubbed had it
+ * reaching for a backend on every render here, failing, and logging a
+ * connection error into an otherwise clean run.
+ *
+ * `[]` is the honest default for this suite: with no options the filter
+ * does not render, which is the page these tests were written against.
+ */
+const getServiceCategories = vi.hoisted(() => vi.fn(async () => [] as string[]));
 vi.mock("../app/_lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../app/_lib/api")>();
-  return { ...actual, getFacilities };
+  return { ...actual, getFacilities, getServiceCategories };
 });
 
 async function renderDirectory(page: Record<string, string>, result: Record<string, unknown>) {
