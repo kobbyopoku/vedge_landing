@@ -312,6 +312,27 @@ export type FacilityQuery = {
    * described "Magnetic resonance imaging, brain" whose modality is MRI.
    */
   service?: string;
+  /**
+   * A `TariffCategory` name — what a facility **offers**, as against
+   * {@link type}, which is what it calls itself. Someone after a blood
+   * test who filters to `LABORATORY` misses every `DIAGNOSTIC_CENTER`
+   * that runs a lab, which in Ghana is most of them.
+   *
+   * **This is the one filter the API refuses rather than ignores.** A
+   * value outside `TariffCategory` is a 400, not an empty page and
+   * certainly not an unfiltered one — see
+   * `PublicFacilityDirectoryService#list`. Only ever send a value that
+   * came back from {@link getServiceCategories}; nothing in this repo
+   * holds a copy of the enum, deliberately (see
+   * `SERVICE_CATEGORY_LABELS`).
+   *
+   * Composes with {@link service} through a single subquery on the
+   * server, so the two must be satisfied by the **same** published
+   * service: `category=LAB&service=mri` asks for a lab test called MRI
+   * and correctly finds nobody, rather than finding every imaging centre
+   * that also runs a lab.
+   */
+  category?: string;
   /** Zero-based. */
   page?: number;
   size?: number;
@@ -462,10 +483,39 @@ function facilityQueryString(query: FacilityQuery): string {
   if (query.location) params.set("location", query.location);
   if (query.q) params.set("q", query.q);
   if (query.service) params.set("service", query.service);
+  if (query.category) params.set("category", query.category);
   if (query.page && query.page > 0) params.set("page", String(query.page));
   params.set("size", String(Math.min(query.size ?? FACILITY_PAGE_SIZE, MAX_FACILITY_PAGE_SIZE)));
   return params.toString();
 }
+
+/**
+ * The one status this directory reads as an answer rather than as a
+ * failure.
+ *
+ * **A 400 here means a filter named something that does not exist**, and
+ * `category` is the only filter that can produce one — it is an allowlist
+ * over `TariffCategory` and fails closed rather than quietly returning
+ * every facility on the platform (`PublicFacilityDirectoryService#list`).
+ * That refusal is a fact about the *request*, not about the server, so
+ * treating it as an outage would be exactly the mistake
+ * {@link FacilityPage.unavailable} exists to stop, pointed the other way:
+ * "we couldn't reach the directory" is a claim about us, made at a moment
+ * when we know perfectly well that we reached it and it disagreed with the
+ * URL. It would also invite a retry that cannot possibly succeed.
+ *
+ * So a 400 renders as the ordinary empty state — "nothing here matches
+ * that yet" — which is the true answer to "show me facilities offering a
+ * category that does not exist". Nothing this site links to can produce
+ * one: `getServiceCategories` is the only source of category values and
+ * every one of them is real. It takes a hand-typed URL to get here.
+ *
+ * Deliberately narrow. 401/403/404/429 and every 5xx still throw, because
+ * none of them means "your filter matched nothing" — a 429 in particular
+ * must stay distinguishable, since rendering it as an empty directory
+ * would tell a rate-limited visitor that Vedge has no facilities.
+ */
+const REFUSED_FILTER_STATUS = 400;
 
 /** Fetch one page of the directory with ISR (5-minute revalidation). */
 async function fetchFacilities(query: FacilityQuery): Promise<FacilityPage> {
@@ -473,6 +523,17 @@ async function fetchFacilities(query: FacilityQuery): Promise<FacilityPage> {
     `${API_URL}/api/public/facilities?${facilityQueryString(query)}`,
     publicFetchInit(),
   );
+  if (res.status === REFUSED_FILTER_STATUS) {
+    console.warn("Facilities directory refused a filter; rendering it as an empty result");
+    return {
+      facilities: [],
+      page: 0,
+      size: query.size ?? FACILITY_PAGE_SIZE,
+      totalPages: 0,
+      totalElements: 0,
+      unavailable: false,
+    };
+  }
   if (!res.ok) throw new Error(`Failed to fetch facilities: ${res.status}`);
 
   const body: ApiPage<ApiFacilitySummary> = await res.json();
@@ -542,6 +603,49 @@ export async function getFacilities(query: FacilityQuery = {}): Promise<Facility
       totalElements: facilitiesFallback.length,
       unavailable: true,
     };
+  }
+}
+
+/**
+ * Which service categories the directory should offer as a filter.
+ *
+ * **The option set and the filter are one query on the server.**
+ * `PublicFacilityDirectoryService#serviceCategories` answers this by
+ * running the directory's own list query once per `TariffCategory` and
+ * keeping the ones that come back with a facility — so a name in this
+ * array is a name that, passed as {@link FacilityQuery.category}, returns
+ * at least one facility. Nothing in this repo holds a list of categories
+ * to fall out of step with it (see `SERVICE_CATEGORY_LABELS`), which is
+ * the point: a "Laboratory tests" option written down here would render
+ * for every visitor and find nobody, because no tenant has ever been able
+ * to publish a lab tariff.
+ *
+ * **An empty array on failure, and that is the safe direction here** —
+ * unlike {@link getFacilities}, which carries an `unavailable` flag
+ * precisely because an empty directory and an unreachable one are
+ * different claims. A missing option set makes no claim at all: the
+ * control is not rendered, the page is the page it was before this
+ * feature, and nothing tells the visitor anything false. What matters is
+ * what does NOT follow from it — `/facilities` still forwards whatever
+ * `?category=` the URL carried, so a failed probe cannot silently widen a
+ * filtered result into an unfiltered one. Read this as "we have no
+ * options to offer", never as "there are none".
+ */
+export async function getServiceCategories(): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/public/facilities/filters/service-categories`,
+      publicFetchInit(),
+    );
+    if (!res.ok) throw new Error(`Failed to fetch service categories: ${res.status}`);
+    const body: unknown = await res.json();
+    if (!Array.isArray(body)) return [];
+    // Defensive in the same spirit as `toFacility`: the wire is JSON and
+    // nothing but a string is renderable as an option.
+    return body.filter((value): value is string => typeof value === "string" && value.length > 0);
+  } catch (e) {
+    console.warn("Failed to fetch service categories from API; the filter will not render", e);
+    return [];
   }
 }
 

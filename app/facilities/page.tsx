@@ -8,9 +8,10 @@ import {
   facilityTypeLabel,
   facilityTypePluralLabel,
   locationLabel,
+  serviceCategoryLabel,
   type Facility,
 } from "../_data/facilities";
-import { getFacilities, FACILITY_PAGE_SIZE } from "../_lib/api";
+import { getFacilities, getServiceCategories, FACILITY_PAGE_SIZE } from "../_lib/api";
 import { LEGAL_CONFIG } from "../_lib/legal/config";
 
 /**
@@ -54,6 +55,29 @@ const SITE_URL = LEGAL_CONFIG.urls.marketing;
  */
 const AUTO_SUBMIT_DELAY_MS = 450;
 
+/**
+ * How many options the service-category filter needs before it renders.
+ *
+ * **Two, and the second one is not "All services".** A dropdown reading
+ * "All services / Imaging and scans" over a directory where imaging is the
+ * only category anyone publishes is a control with nothing to decide:
+ * every facility that publishes anything publishes imaging, so both
+ * settings return the same rows. That is worse than absent — it is a
+ * filter that appears to work and does nothing, which a visitor reads as
+ * the directory being broken rather than as the directory being small.
+ *
+ * This is the number that makes the filter **invisible today and visible
+ * the day it means something**, with no deploy and no flag: the option set
+ * comes from `getServiceCategories`, which is the backend running the
+ * directory's own list query once per category. The first facility to
+ * publish a lab tariff takes the count from one to two and the control
+ * appears — for everyone, on the next revalidation.
+ *
+ * Not a disabled control and not a single-option select, both of which
+ * would advertise a capability the directory does not have yet.
+ */
+const MIN_SERVICE_CATEGORY_OPTIONS = 2;
+
 /** Next 16 hands both `params` and `searchParams` to a page as promises. */
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -82,13 +106,33 @@ type Filters = {
    * filter matches.
    */
   service?: string;
+  /**
+   * A `TariffCategory` name — what a facility offers, where {@link type}
+   * is what it calls itself. Shape-checked only; see {@link readFilters}.
+   */
+  category?: string;
   /** Zero-based. */
   page: number;
 };
 
+/**
+ * An enum constant's shape. Used to screen `?category=` before it is
+ * forwarded, and it is deliberately a **shape** check rather than a value
+ * allowlist — the same treatment `country` gets, and for the same reason:
+ * which categories exist is the backend's to know, not this file's. A
+ * value allowlist here would be the hardcoded list this whole design
+ * exists to avoid, one layer up.
+ *
+ * It exists at all so that obvious junk — a path, a script fragment, a
+ * hundred characters of it — is dropped here rather than round-tripped to
+ * an unauthenticated endpoint and echoed into a log.
+ */
+const CATEGORY_SHAPE = /^[A-Z][A-Z0-9_]{0,39}$/;
+
 function readFilters(raw: Record<string, string | string[] | undefined>): Filters {
   const requestedType = one(raw.type)?.toUpperCase();
   const requestedCountry = one(raw.country)?.toUpperCase();
+  const requestedCategory = one(raw.category)?.toUpperCase();
   const parsedPage = Number.parseInt(one(raw.page) ?? "0", 10);
 
   return {
@@ -111,6 +155,21 @@ function readFilters(raw: Record<string, string | string[] | undefined>): Filter
     location: one(raw.location) ?? one(raw.city),
     q: one(raw.q),
     service: one(raw.service),
+    // **Kept whatever the option set turns out to be**, which is the
+    // opposite of what `type` two fields up does, and the difference is
+    // deliberate. An unknown `type` is dropped because forwarding it
+    // renders a dropdown with nothing selected over an empty result —
+    // cosmetic. Dropping a category has a consequence `type` does not:
+    // the request would go out unfiltered and answer 200 with every
+    // facility on the platform, which the visitor reads as "these all
+    // offer lab tests". That is the exact failure the backend's 400
+    // exists to refuse, reintroduced on this side. So a shape-valid
+    // category is always sent, whether or not it is currently offered and
+    // whether or not the option probe answered at all; the server decides
+    // what it means. See `getServiceCategories` and `fetchFacilities`'s
+    // 400 handling for the two ends of that.
+    category:
+      requestedCategory && CATEGORY_SHAPE.test(requestedCategory) ? requestedCategory : undefined,
     page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0,
   };
 }
@@ -123,6 +182,7 @@ function directoryHref(filters: Partial<Filters>): string {
   if (filters.location) params.set("location", filters.location);
   if (filters.q) params.set("q", filters.q);
   if (filters.service) params.set("service", filters.service);
+  if (filters.category) params.set("category", filters.category);
   if (filters.page && filters.page > 0) params.set("page", String(filters.page));
   const query = params.toString();
   return query ? `/facilities?${query}` : "/facilities";
@@ -146,9 +206,32 @@ function directoryHref(filters: Partial<Filters>): string {
  * filters. While the directory is filling up, most type chips lead
  * somewhere empty, and an empty result page is thin content pointed at
  * the exact pages that should be ranking.
+ *
+ * **`category` is a closed set like `type` and is still not indexed, and
+ * that is a judgement rather than an omission.** `?category=LAB` would be
+ * a perfectly finite page — but the intent behind it is already served by
+ * `?type=LABORATORY`, which is indexed, has a plural-label title and a
+ * description written for it, and lists an overlapping set of facilities.
+ * Two indexable pages competing for "laboratories on Vedge" is
+ * cannibalisation, and the one that should win is the one that already
+ * ranks. Adding `category` to the indexable set would also multiply the
+ * crawlable surface by the size of the enum on top of the type × country
+ * product already there, which is the faceted-navigation trap the free-text
+ * clause above exists to avoid — closed set or not.
+ *
+ * Reversible: `canonicalFilters` below already consolidates a category
+ * view onto its type/country form, so these URLs are crawled through to
+ * the facilities they list either way, and nothing is lost by starting
+ * conservative.
  */
 function isIndexable(filters: Filters, resultCount: number): boolean {
-  return resultCount > 0 && !filters.location && !filters.q && !filters.service;
+  return (
+    resultCount > 0 &&
+    !filters.location &&
+    !filters.q &&
+    !filters.service &&
+    !filters.category
+  );
 }
 
 export async function generateMetadata({
@@ -168,6 +251,7 @@ export async function generateMetadata({
     location: filters.location,
     q: filters.q,
     service: filters.service,
+    category: filters.category,
     page: filters.page,
     size: FACILITY_PAGE_SIZE,
   });
@@ -200,20 +284,44 @@ export default async function FacilitiesPage({
   searchParams: SearchParams;
 }) {
   const filters = readFilters(await searchParams);
-  const { facilities, page, totalPages, totalElements, unavailable } = await getFacilities({
-    type: filters.type,
-    country: filters.country,
-    location: filters.location,
-    q: filters.q,
-    service: filters.service,
-    page: filters.page,
-    size: FACILITY_PAGE_SIZE,
-  });
+  // Both reads in flight together. The option probe is not a dependency
+  // of the list — the category is forwarded whatever the probe says (see
+  // `readFilters`) — so making it one would have added a round trip to
+  // every directory request in exchange for nothing.
+  const [{ facilities, page, totalPages, totalElements, unavailable }, serviceCategories] =
+    await Promise.all([
+      getFacilities({
+        type: filters.type,
+        country: filters.country,
+        location: filters.location,
+        q: filters.q,
+        service: filters.service,
+        category: filters.category,
+        page: filters.page,
+        size: FACILITY_PAGE_SIZE,
+      }),
+      getServiceCategories(),
+    ]);
+
+  // The option set decides what the control offers, never what the
+  // request carries. Below the floor it renders nothing at all — see
+  // MIN_SERVICE_CATEGORY_OPTIONS for why one option is worse than none.
+  const categoryFilterOffered = serviceCategories.length >= MIN_SERVICE_CATEGORY_OPTIONS;
 
   const hasNarrowing = Boolean(
-    filters.type || filters.country || filters.location || filters.q || filters.service,
+    filters.type ||
+      filters.country ||
+      filters.location ||
+      filters.q ||
+      filters.service ||
+      filters.category,
   );
   const typeLabel = filters.type ? facilityTypePluralLabel(filters.type) : null;
+  // Named in the result line whether or not the dropdown rendered. That
+  // is what keeps a filtered page honest when the option probe failed: the
+  // request WAS narrowed, so something on the page has to say so, or the
+  // visitor reads a short list as the whole directory.
+  const categoryLabel = filters.category ? serviceCategoryLabel(filters.category) : null;
 
   return (
     <>
@@ -265,6 +373,7 @@ export default async function FacilitiesPage({
               <select
                 id="facility-type"
                 name="type"
+                data-autosubmit=""
                 defaultValue={filters.type ?? ""}
                 aria-describedby="facility-type-hint"
                 className="mt-2 w-full appearance-none border-0 border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none focus:border-ink"
@@ -299,11 +408,67 @@ export default async function FacilitiesPage({
                 id="facility-type-hint"
                 className="mt-2 hidden text-xs leading-snug text-ink/55 [html.js-autosubmit_&]:block"
               >
-                Choosing a type searches straight away — the other fields wait for Search.
+                {categoryFilterOffered
+                  ? "Choosing a type or a service searches straight away — the other fields wait for Search."
+                  : "Choosing a type searches straight away — the other fields wait for Search."}
               </p>
             </div>
 
-            {/* Picking a type submits the form. The most-used filter went
+            {/* The service-category filter — **what a facility offers, as
+                against the Type dropdown's what it calls itself.** Someone
+                after a blood test filters to "Laboratories" and misses
+                every diagnostic centre that runs a lab, which in Ghana is
+                most of them.
+
+                <b>Rendered only when the option set has a real choice in
+                it, and the option set is not written down anywhere.</b> It
+                comes from `getServiceCategories`, which the backend
+                answers by running the directory's own list query once per
+                category — so every option here is one that returns at
+                least one facility when it is clicked. Today that means
+                this whole block renders nothing: no tenant has ever been
+                able to publish a lab tariff (the publish screen hardcoded
+                IMAGING, and its Labs tab is dark pending conversion), so
+                imaging is the only category anyone has published and one
+                option is not a choice. The day the first facility
+                publishes a lab service the count reaches two and this
+                appears — for every visitor, on the next revalidation, with
+                no deploy and no flag.
+
+                Same auto-submit as Type, via the same delegated listener,
+                the same 450ms debounce and the same narrow `focusout`
+                cancel: the two selects are the same kind of control and a
+                form where one commits instantly and the other waits would
+                be worse than either rule applied consistently. The hint
+                above covers both and says so when both are present. */}
+            {categoryFilterOffered && (
+              <div className="min-w-[11rem]">
+                <label
+                  htmlFor="facility-category"
+                  className="block font-mono text-[10px] uppercase tracking-kicker text-ink/50"
+                >
+                  Service type
+                </label>
+                <select
+                  id="facility-category"
+                  name="category"
+                  data-autosubmit=""
+                  defaultValue={filters.category ?? ""}
+                  aria-describedby="facility-type-hint"
+                  className="mt-2 w-full appearance-none border-0 border-b border-ink/25 bg-transparent pb-2 font-display text-lg text-ink outline-none focus:border-ink"
+                >
+                  <option value="">All services</option>
+                  {serviceCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {serviceCategoryLabel(category)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Picking a type — or a service category — submits the form.
+                The most-used filter went
                 from one click (the old pill row) to three interactions
                 when it became a dropdown, and this gives two of them back
                 without turning anything into a client component: no
@@ -322,6 +487,22 @@ export default async function FacilitiesPage({
                 the re-render, and needs no DOMContentLoaded guard. The
                 flag makes a second execution a no-op. The document class
                 it sets is what reveals the hint above — see there.
+
+                <b>Matched on a `data-autosubmit` attribute, not on
+                `id === 'facility-type'`.</b> There are two selects now and
+                there could be three, and an id list inside a string
+                concatenated out of ES5 fragments is the kind of thing that
+                gets a new control added to the form and not to the script
+                — which fails silently, because a select that does not
+                auto-submit still works via the Search button and still
+                sits under a hint promising it does not need one. The
+                attribute puts the opt-in on the control itself, where
+                anyone adding a select can see it. Note the check is
+                `getAttribute(...) !== null` rather than truthiness: the
+                attribute is deliberately empty (`data-autosubmit=""`),
+                because it names a behaviour rather than carrying a value,
+                and `dataset` is avoided so this stays comfortably ES5 —
+                inline scripts are not transpiled.
 
                 Debounced by AUTO_SUBMIT_DELAY_MS, which is an
                 accessibility mitigation and not a performance tune.
@@ -386,8 +567,10 @@ export default async function FacilitiesPage({
                 __html:
                   "if(!window.__vedgeTypeAutoSubmit){window.__vedgeTypeAutoSubmit=1;" +
                   "document.documentElement.classList.add('js-autosubmit');(function(){" +
+                  "function s(n){return !!n&&!!n.getAttribute&&" +
+                  "n.getAttribute('data-autosubmit')!==null;}" +
                   "var d;document.addEventListener('change',function(e){var t=e.target;" +
-                  "if(!t||t.id!=='facility-type'||!t.form)return;clearTimeout(d);" +
+                  "if(!s(t)||!t.form)return;clearTimeout(d);" +
                   "d=setTimeout(function(){var f=t.form;if(!f)return;" +
                   "if(f.requestSubmit)f.requestSubmit();else f.submit();}," +
                   `${AUTO_SUBMIT_DELAY_MS});});` +
@@ -396,7 +579,7 @@ export default async function FacilitiesPage({
                   "return '|text|search|email|tel|url|password|number|'" +
                   ".indexOf('|'+n.type+'|')>-1;}" +
                   "document.addEventListener('focusout',function(e){" +
-                  "if(!e.target||e.target.id!=='facility-type')return;" +
+                  "if(!s(e.target))return;" +
                   "if(a(e.relatedTarget))clearTimeout(d);});})();}",
               }}
             />
@@ -492,6 +675,7 @@ export default async function FacilitiesPage({
             >
               {totalElements === 1 ? "1 facility" : `${totalElements} facilities`}
               {typeLabel ? ` · ${typeLabel}` : ""}
+              {categoryLabel ? ` · ${categoryLabel}` : ""}
               {filters.location ? ` · ${filters.location}` : ""}
               {filters.service ? ` · “${filters.service}”` : ""}
               {filters.q ? ` · “${filters.q}”` : ""}

@@ -176,6 +176,56 @@ export function facilityTypePluralLabel(orgType: string | null | undefined): str
 }
 
 /**
+ * Labels for the backend's `TariffCategory` names — **labels only.**
+ *
+ * <p>There is deliberately no exported list of category <i>values</i> here,
+ * and that absence is the whole design. `FACILITY_TYPES` above is a list
+ * because `OrgType` is a closed set of things a facility <i>is</i>: every
+ * value is a legitimate filter the moment the enum has it. A service
+ * category is different — it describes what a facility has actually
+ * **published**, and no tenant has ever been able to publish a lab tariff
+ * (the publish screen hardcoded `IMAGING` until 2026-08-20, and its Labs
+ * tab ships dark pending lab conversion). A hardcoded "Laboratory tests"
+ * option would therefore return zero facilities for every visitor who
+ * clicked it: a filter advertising a capability and finding nobody.
+ *
+ * <p>So the option set comes from `getServiceCategories()`, which the
+ * backend derives by running the directory's own list query once per
+ * category — see `PublicFacilityDirectoryService#serviceCategories`. This
+ * map only decides what those options are *called*.
+ *
+ * <p>Every current `TariffCategory` value has an entry, but
+ * {@link serviceCategoryLabel} falls back to a title-cased version of
+ * whatever arrives rather than dropping it — the same rule
+ * {@link facilityTypeLabel} follows, and for a sharper reason here: a
+ * category added to the Java enum and published by a facility is an option
+ * this site must render, and rendering it as "Bed day" is strictly better
+ * than not offering a filter that works.
+ */
+const SERVICE_CATEGORY_LABELS: Record<string, string> = {
+  IMAGING: "Imaging and scans",
+  LAB: "Laboratory tests",
+  CONSULTATION: "Consultations",
+  PROCEDURE: "Procedures",
+  INVESTIGATION: "Investigations",
+  DRUG: "Medicines",
+  SUPPLY: "Medical supplies",
+  BED_DAY: "Inpatient stays",
+};
+
+/** A human label for a `TariffCategory` name. See {@link SERVICE_CATEGORY_LABELS}. */
+export function serviceCategoryLabel(category: string | null | undefined): string | null {
+  if (!category) return null;
+  const known = SERVICE_CATEGORY_LABELS[category];
+  if (known) return known;
+  return category
+    .toLowerCase()
+    .split("_")
+    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
+}
+
+/**
  * ISO 3166-1 alpha-3 → country name, for the markets Vedge names on this
  * site. Anything else renders as the raw code, which is still meaningful
  * to a reader and cannot break a card.
