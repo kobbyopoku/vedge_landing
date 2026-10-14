@@ -21,6 +21,7 @@ const marqueeChips = [
   "Patient Mobile App",
   "Custom Roles",
   "HL7 Lab Interfaces",
+  "DHIS2 Export",
   "Multi-Tenant Orgs",
 ];
 
@@ -44,6 +45,11 @@ const features = [
     num: "04",
     title: "Pricing that respects an African P&L.",
     body: "Free base tiers for every lab and every pharmacy in Africa. Hospitals start at ₵1,200/month. 30-day hospital trials, 14-day lab trials. Founding customer programme for the first 15 paying facilities — 40% off the first year.",
+  },
+  {
+    num: "05",
+    title: "Open to everything you already run.",
+    body: "Lab results leave over HL7 to any hospital system, Vedge or not. Monthly returns file themselves to DHIS2. We speak FHIR, ICD-10, and LOINC. We would rather be the easiest system in Ghana to connect to than the one that locks your records in.",
   },
 ];
 
@@ -183,7 +189,7 @@ export default function HomePage() {
         <Container>
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-5">
-              <Kicker>The four commitments</Kicker>
+              <Kicker>The five commitments</Kicker>
               <h2 className="reveal mt-6 font-display text-display">
                 We don&rsquo;t ship a <span className="italic-display">generic EHR.</span> We ship a system that fits the floor you actually stand on.
               </h2>
@@ -213,6 +219,69 @@ export default function HomePage() {
             <div className="reveal reveal-delay-1"><StatBlock value="30d" label="Hospital trial" note="Zero credit card. Zero auto-charge. Cancel any time." /></div>
             <div className="reveal reveal-delay-2"><StatBlock value="20%" label="Annual saving" note="Save when you commit to a year. Founding customers save 40%." /></div>
             <div className="reveal reveal-delay-3"><StatBlock value="Free" label="Starting price" note="Labs and pharmacies start free. Hospitals from ₵1,200/month." /></div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ═══════════════════════ OPEN AND YOURS ═══════════════════════ */}
+      <section aria-labelledby="open-heading" className="py-24 md:py-36">
+        <Container>
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 md:col-span-4">
+              <Kicker>Open and yours</Kicker>
+              <h2 id="open-heading" className="reveal mt-6 font-display text-display text-ink">
+                Open by design.<br /><span className="italic-display">Yours by law.</span>
+              </h2>
+              <p className="reveal reveal-delay-1 mt-8 max-w-sm text-ink/70">
+                A records system that traps your data recreates the problem it was meant to solve. Vedge is built to connect — and built so you decide what connects.
+              </p>
+              <div className="reveal reveal-delay-2 mt-10 flex flex-col items-start gap-3">
+                <Link href="/legal/dpa" className="font-mono text-[11px] uppercase tracking-kicker text-ink/60 transition-colors hover:text-ink">
+                  Read the data processing agreement →
+                </Link>
+                <Link href="/legal/privacy" className="font-mono text-[11px] uppercase tracking-kicker text-ink/60 transition-colors hover:text-ink">
+                  Read the privacy policy →
+                </Link>
+              </div>
+            </div>
+
+            <div className="col-span-12 grid gap-12 md:col-span-8 md:grid-cols-2 md:pl-12">
+              <ul className="space-y-8 border-t border-ink/20 pt-8">
+                <li className="reveal">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Standards</div>
+                  <h3 className="mt-2 font-display text-xl">HL7, FHIR, ICD-10, LOINC.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">The languages every modern hospital system speaks. Orders, results, and codes exchange without a translator.</p>
+                </li>
+                <li className="reveal reveal-delay-1">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Reporting</div>
+                  <h3 className="mt-2 font-display text-xl">DHIS2, filed from the chart.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">Your monthly returns are built from the records you already keep. No second round of data entry.</p>
+                </li>
+                <li className="reveal reveal-delay-2">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Partners</div>
+                  <h3 className="mt-2 font-display text-xl">Any hospital. Any EMR.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">Lab results flow out to a hospital&rsquo;s own system over HL7, whether or not that hospital runs Vedge.</p>
+                </li>
+              </ul>
+
+              <ul className="space-y-8 border-t border-ink/20 pt-8">
+                <li className="reveal">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Control</div>
+                  <h3 className="mt-2 font-display text-xl">You are the controller. We are the processor.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">Under the Data Protection Act 2012 (Act 843), your facility decides what happens to its records. Vedge acts on your instructions, under a signed agreement. Every access is logged.</p>
+                </li>
+                <li className="reveal reveal-delay-1">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Use</div>
+                  <h3 className="mt-2 font-display text-xl">We don&rsquo;t sell data. We don&rsquo;t mine it.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">Your records are used to run your facility. Nothing else — unless you and your patients have said so in writing.</p>
+                </li>
+                <li className="reveal reveal-delay-2">
+                  <div className="font-mono text-[10px] uppercase tracking-kicker text-clay">Residency</div>
+                  <h3 className="mt-2 font-display text-xl">Hosted in Ghana.</h3>
+                  <p className="mt-2 max-w-xl text-ink/70">Patient records stay in the country. Primary infrastructure and backups both run on local cloud regions.</p>
+                </li>
+              </ul>
+            </div>
           </div>
         </Container>
       </section>
