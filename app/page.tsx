@@ -5,6 +5,7 @@ import { Button } from "./_components/Button";
 import { StatBlock } from "./_components/StatBlock";
 import { KenteDivider } from "./_components/KenteDivider";
 import { verticals } from "./_data/plans";
+import { LEGAL_CONFIG } from "./_lib/legal/config";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
@@ -88,7 +89,7 @@ export default function HomePage() {
                   <div className="reveal reveal-delay-2 grid grid-cols-2 gap-y-6">
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Serving</div>
-                      <div className="mt-1 font-display text-2xl">Africa · Pan-continental</div>
+                      <div className="mt-1 font-display text-2xl">Ghana first · Africa next</div>
                     </div>
                     <div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">Verticals</div>
@@ -242,6 +243,13 @@ export default function HomePage() {
                 <Link href="/legal/privacy" className="font-mono text-[11px] uppercase tracking-kicker text-ink/60 transition-colors hover:text-ink">
                   Read the privacy policy →
                 </Link>
+                {/* No developer portal yet (Bridge plan, gate G1). Until then, interest from other vendors lands in the inbox, tagged by subject. */}
+                <a
+                  href={`mailto:${LEGAL_CONFIG.contactEmail}?subject=${encodeURIComponent("Connecting a system to Vedge")}`}
+                  className="font-mono text-[11px] uppercase tracking-kicker text-clay transition-colors hover:text-ink"
+                >
+                  Connecting a system to Vedge? Write to us →
+                </a>
               </div>
             </div>
 
