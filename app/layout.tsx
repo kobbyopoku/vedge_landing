@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { LEGAL_CONFIG } from "./_lib/legal/config";
 import "./globals.css";
 import { Header } from "./_components/Header";
 import { Footer } from "./_components/Footer";
@@ -26,6 +27,9 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for og:image and twitter:image URLs. Without it, crawlers
+  // on a preview deploy get the preview host, and locally they get nothing.
+  metadataBase: new URL(LEGAL_CONFIG.urls.marketing),
   title: {
     default: "Vedge — A health operating system built for Africa",
     template: "%s · Vedge",
