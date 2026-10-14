@@ -13,21 +13,25 @@ const facilityTypes = [
   { value: "other", label: "Other" },
 ] as const;
 
+// Values are ISO 3166-1 alpha-3: the backend stores `country` in a
+// VARCHAR(3) and copies it into the organisation on approval. The old
+// slugs ("ghana") were rejected by Postgres and every application was lost.
+// "ZZZ" is in ISO's user-assigned range and stands for "elsewhere".
 const countries = [
-  { value: "ghana", label: "Ghana" },
-  { value: "nigeria", label: "Nigeria" },
-  { value: "kenya", label: "Kenya" },
-  { value: "south-africa", label: "South Africa" },
-  { value: "rwanda", label: "Rwanda" },
-  { value: "uganda", label: "Uganda" },
-  { value: "tanzania", label: "Tanzania" },
-  { value: "ethiopia", label: "Ethiopia" },
-  { value: "cote-divoire", label: "Côte d\u2019Ivoire" },
-  { value: "senegal", label: "Senegal" },
-  { value: "togo", label: "Togo" },
-  { value: "egypt", label: "Egypt" },
-  { value: "morocco", label: "Morocco" },
-  { value: "other", label: "Elsewhere in Africa" },
+  { value: "GHA", label: "Ghana" },
+  { value: "NGA", label: "Nigeria" },
+  { value: "KEN", label: "Kenya" },
+  { value: "ZAF", label: "South Africa" },
+  { value: "RWA", label: "Rwanda" },
+  { value: "UGA", label: "Uganda" },
+  { value: "TZA", label: "Tanzania" },
+  { value: "ETH", label: "Ethiopia" },
+  { value: "CIV", label: "Côte d\u2019Ivoire" },
+  { value: "SEN", label: "Senegal" },
+  { value: "TGO", label: "Togo" },
+  { value: "EGY", label: "Egypt" },
+  { value: "MAR", label: "Morocco" },
+  { value: "ZZZ", label: "Elsewhere in Africa" },
 ] as const;
 
 /**
