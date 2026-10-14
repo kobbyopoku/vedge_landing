@@ -3,6 +3,7 @@ import { Container } from "../_components/Container";
 import { Kicker } from "../_components/Kicker";
 import { Button } from "../_components/Button";
 import { KenteDivider } from "../_components/KenteDivider";
+import { LEGAL_CONFIG } from "../_lib/legal/config";
 
 export const metadata: Metadata = {
   title: "About",
@@ -178,7 +179,8 @@ export default function AboutPage() {
             </p>
             <div className="reveal reveal-delay-2 mt-12 flex justify-center gap-4">
               <Button href="/contact" variant="ghost" className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest-deep">
-                careers@vedge.health
+                {/* No careers@ mailbox exists yet; applications go to the main inbox. */}
+                {LEGAL_CONFIG.contactEmail}
               </Button>
             </div>
           </div>

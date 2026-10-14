@@ -403,7 +403,7 @@ export default function HomePage() {
               <ul className="mt-6 space-y-5">
                 <li>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-bone/50">Email</div>
-                  <div className="font-display text-2xl text-bone">hello@vedge.health</div>
+                  <div className="font-display text-2xl text-bone">{LEGAL_CONFIG.contactEmail}</div>
                 </li>
                 <li>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-bone/50">Accra</div>
