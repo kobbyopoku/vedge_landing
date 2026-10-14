@@ -120,7 +120,7 @@ describe("indexing", () => {
 
     expect(meta.description).toBeTruthy();
     expect(meta.alternates?.canonical).toBe(
-      "https://tryvedge.com/facilities/ridge-diagnostics",
+      "https://www.tryvedge.com/facilities/ridge-diagnostics",
     );
   });
 });

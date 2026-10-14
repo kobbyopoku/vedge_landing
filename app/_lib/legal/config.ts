@@ -105,7 +105,10 @@ export const LEGAL_CONFIG = {
 
   // ── URLs ─────────────────────────────────────────────────────────
   urls: {
-    marketing: "https://tryvedge.com",
+    // The edge 307s the apex to www, so www is the canonical host. This
+    // value feeds canonical tags, the sitemap, robots and og:image URLs;
+    // naming the apex here makes every one of them a redirect.
+    marketing: "https://www.tryvedge.com",
     app: "https://app.tryvedge.com",
     docs: "https://docs.tryvedge.com",
   },

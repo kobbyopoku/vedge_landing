@@ -7,7 +7,7 @@ import {
 } from "../app/_data/facilities";
 import { aBranch, aFacility, aService, branches, services } from "./fixtures";
 
-const SITE = "https://tryvedge.com";
+const SITE = "https://www.tryvedge.com";
 
 describe("facilityFactPhrases", () => {
   it("names only the sections the facility actually has", () => {
