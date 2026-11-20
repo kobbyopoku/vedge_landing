@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "./_components/Header";
 import { Footer } from "./_components/Footer";
 import { RevealMount } from "./_components/RevealMount";
+import { BROWSER_SUPPORT_SCRIPT } from "./_components/browserSupport";
 import { CookieBanner } from "./_components/legal/CookieBanner";
 
 const display = Fraunces({
@@ -68,8 +69,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    // suppressHydrationWarning: the support script below adds a class to
+    // <html> before React hydrates.
+    <html
+      lang="en"
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen antialiased" suppressHydrationWarning>
+        <div
+          id="legacy-browser-notice"
+          className="legacy-browser-notice"
+          role="alert"
+          hidden
+          suppressHydrationWarning
+        >
+          <strong>Your browser is out of date.</strong> You can read this page,
+          but the forms and menus will not work. On Windows 7, install Chrome 109
+          or Firefox ESR 115, the last versions made for it. On Windows 10 or 11,
+          install or update Chrome. Then reload this page.
+        </div>
+        {/* After the notice: it un-hides it. See browserSupport.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: BROWSER_SUPPORT_SCRIPT }} />
         <RevealMount />
         <Header />
         <main className="min-h-[60vh]">{children}</main>

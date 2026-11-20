@@ -20,6 +20,9 @@ export function RevealMount() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Tells the pre-paint support script the bundle is alive, so it keeps
+    // the reveal armed (see browserSupport.ts).
+    (window as Window & { __vedgeRevealMounted?: boolean }).__vedgeRevealMounted = true;
 
     const nodes = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
     if (nodes.length === 0) return;
