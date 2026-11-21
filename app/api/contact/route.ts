@@ -55,6 +55,18 @@ function validate(body: unknown): { ok: true; data: ContactMessage } | { ok: fal
   return { ok: true, data };
 }
 
+/**
+ * The address the hosting platform saw, for the backend's per-visitor limit.
+ * The platform sets x-real-ip; failing that, it appends the connecting
+ * address as the right-most x-forwarded-for entry. The left-most entry is
+ * whatever the visitor chose to write, so it is never used.
+ */
+function visitorIp(headers: Headers): string | undefined {
+  const real = headers.get("x-real-ip")?.trim();
+  if (real) return real;
+  return headers.get("x-forwarded-for")?.split(",").map((hop) => hop.trim()).filter(Boolean).at(-1);
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -69,9 +81,11 @@ export async function POST(request: Request) {
   }
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8050";
-  // The backend rate-limits per visitor, so pass on who the visitor is;
-  // otherwise every message would share this server's address.
-  const visitor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  // The backend rate-limits per visitor. It believes a visitor address only
+  // with the key it shares with this server; without both, every message
+  // shares this server's bucket.
+  const landingKey = process.env.VEDGE_CONTACT_LANDING_KEY;
+  const visitor = visitorIp(request.headers);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
@@ -81,7 +95,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(visitor ? { "X-Forwarded-For": visitor } : {}),
+        ...(landingKey && visitor ? { "X-Vedge-Landing-Key": landingKey, "X-Visitor-Ip": visitor } : {}),
       },
       body: JSON.stringify({
         name: result.data.name,

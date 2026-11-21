@@ -18,6 +18,7 @@ const realFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = realFetch;
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 const message = {
@@ -47,7 +48,7 @@ describe("POST /api/contact", () => {
   it("forwards the message to the backend and says ok only when it was saved", async () => {
     const fetchMock = backendAnswers(201, { id: "abc" });
 
-    const res = await POST(post(message, { "x-forwarded-for": "203.0.113.9, 10.0.0.1" }));
+    const res = await POST(post(message));
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -62,7 +63,50 @@ describe("POST /api/contact", () => {
       teamSize: "6",
       message: "Please call me about a trial.",
     });
-    expect((init.headers as Record<string, string>)["X-Forwarded-For"]).toBe("203.0.113.9");
+  });
+
+  /*
+   * The backend's per-visitor limit used to key on the left-most
+   * X-Forwarded-For entry, which the visitor writes. A new value per
+   * request got a fresh bucket. Only the address the hosting platform saw
+   * may be passed on, and only with the shared landing key.
+   */
+  function sentHeaders(fetchMock: ReturnType<typeof backendAnswers>) {
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    return init.headers as Record<string, string>;
+  }
+
+  it("passes on the platform's x-real-ip with the landing key, never a forwarded-for entry", async () => {
+    vi.stubEnv("VEDGE_CONTACT_LANDING_KEY", "landing-secret");
+    const fetchMock = backendAnswers(201, { id: "abc" });
+
+    await POST(post(message, { "x-real-ip": "198.51.100.4", "x-forwarded-for": "10.7.0.1, 198.51.100.4" }));
+
+    const headers = sentHeaders(fetchMock);
+    expect(headers["X-Visitor-Ip"]).toBe("198.51.100.4");
+    expect(headers["X-Vedge-Landing-Key"]).toBe("landing-secret");
+    expect(headers["X-Forwarded-For"]).toBeUndefined();
+  });
+
+  it("without x-real-ip takes the right-most forwarded-for entry, not the visitor-written left-most", async () => {
+    vi.stubEnv("VEDGE_CONTACT_LANDING_KEY", "landing-secret");
+    const fetchMock = backendAnswers(201, { id: "abc" });
+
+    await POST(post(message, { "x-forwarded-for": "10.7.0.1, 1.2.3.4, 203.0.113.9" }));
+
+    expect(sentHeaders(fetchMock)["X-Visitor-Ip"]).toBe("203.0.113.9");
+  });
+
+  it("sends no visitor address when the landing key is not set", async () => {
+    vi.stubEnv("VEDGE_CONTACT_LANDING_KEY", "");
+    const fetchMock = backendAnswers(201, { id: "abc" });
+
+    await POST(post(message, { "x-real-ip": "198.51.100.4", "x-forwarded-for": "198.51.100.4" }));
+
+    const headers = sentHeaders(fetchMock);
+    expect(headers["X-Visitor-Ip"]).toBeUndefined();
+    expect(headers["X-Vedge-Landing-Key"]).toBeUndefined();
+    expect(headers["X-Forwarded-For"]).toBeUndefined();
   });
 
   it("reports an error with the email fallback when the backend fails", async () => {
