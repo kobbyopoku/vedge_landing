@@ -87,8 +87,6 @@ export function Footer() {
           </p>
           <div className="flex gap-6 font-mono text-[10px] uppercase tracking-kicker text-bone/55">
             <Link href="/contact" className="link-grow hover:text-bone">{LEGAL_CONFIG.contactEmail}</Link>
-            <span>·</span>
-            <Link href="/contact" className="link-grow hover:text-bone">+233 30 000 0000</Link>
           </div>
         </div>
       </Container>

@@ -5,6 +5,9 @@ import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
 import { ProductShot } from "../../_components/ProductShot";
+import { registerHref } from "../../_data/plans";
+
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
 export const metadata: Metadata = {
   title: "For pharmacies",
@@ -16,7 +19,7 @@ const surfaces = [
   {
     code: "POS",
     name: "Point of sale",
-    body: "Barcode scan, cedi-native receipts, split payments, and offline fallback if the Ridge Road power goes out mid-sale.",
+    body: "Barcode scan, cedi-native receipts, split payments, and offline fallback if the power goes out mid-sale.",
   },
   {
     code: "INV",
@@ -148,7 +151,8 @@ export default function PharmaciesPage() {
                     Vedge Pharmacy is a point-of-sale, an inventory system, an insurance claims desk (NHIS, private, corporate — every provider), and a discovery surface. On one screen, in one workflow, for every pharmacy that fills a prescription.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
-                    <Button href="/contact">Book a counter demo</Button>
+                    <Button href={registerHref(appUrl, "PHARMACY")}>Start free</Button>
+                    <Button href="/contact" variant="ghost">Book a counter demo</Button>
                     <Button href="/pricing#pharmacy" variant="ghost">See pharmacy pricing</Button>
                   </div>
                 </div>
@@ -307,23 +311,6 @@ export default function PharmaciesPage() {
         </Container>
       </section>
 
-      {/* ═══════════════ PULL QUOTE ═══════════════ */}
-      <section className="border-t border-ink/15 py-24 md:py-32">
-        <Container>
-          <div className="mx-auto max-w-4xl">
-            <Kicker>A pharmacist writes</Kicker>
-            <blockquote className="reveal mt-10">
-              <p className="font-display text-display leading-[1.05]">
-                &ldquo;The first week I was on Growth, three patients I&rsquo;d never seen walked in holding my counter&rsquo;s name on their phone. <span className="italic-display">I hadn&rsquo;t spent a pesewa on advertising.</span>&rdquo;
-              </p>
-              <footer className="reveal reveal-delay-1 mt-10 font-mono text-[11px] uppercase tracking-kicker text-ink/60">
-                — Pharmacist · Madina
-              </footer>
-            </blockquote>
-          </div>
-        </Container>
-      </section>
-
       {/* ═══════════════ CTA ═══════════════ */}
       <section className="bg-forest text-bone">
         <Container className="py-24 md:py-32">
@@ -338,7 +325,7 @@ export default function PharmaciesPage() {
               </p>
             </div>
             <div className="col-span-12 mt-8 md:col-span-4 md:mt-0 md:flex md:items-end md:justify-end">
-              <Button href="/contact" variant="ghost" className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest">
+              <Button href={registerHref(appUrl, "PHARMACY")} variant="ghost" className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest">
                 Start pharmacy trial
               </Button>
             </div>

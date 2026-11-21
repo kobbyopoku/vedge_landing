@@ -5,6 +5,9 @@ import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
 import { ProductShot } from "../../_components/ProductShot";
+import { registerHref } from "../../_data/plans";
+
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
 export const metadata: Metadata = {
   title: "For hospitals and clinics",
@@ -52,7 +55,8 @@ export default function HospitalsPage() {
                     Vedge replaces the folder trolley, the Excel workbook, the paper drug chart, and the third-party claims desk. Every insurance plan your patients carry, every ward your matron runs, every drug your pharmacist dispenses — held in one record.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
-                    <Button href="/contact">Book a ward demo</Button>
+                    <Button href={registerHref(appUrl, "HOSPITAL")}>Start free</Button>
+                    <Button href="/contact" variant="ghost">Book a ward demo</Button>
                     <Button href="/pricing#hospital" variant="ghost">See hospital pricing</Button>
                   </div>
                 </div>
@@ -181,7 +185,7 @@ export default function HospitalsPage() {
               </p>
             </div>
             <div className="col-span-12 mt-8 md:col-span-4 md:mt-0 md:flex md:items-end md:justify-end">
-              <Button href="/contact" variant="ghost" className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest-deep">
+              <Button href={registerHref(appUrl, "HOSPITAL")} variant="ghost" className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest-deep">
                 Start hospital trial
               </Button>
             </div>

@@ -354,29 +354,6 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ═══════════════════════ TESTIMONIAL ═══════════════════════ */}
-      <section className="py-28 md:py-40">
-        <Container>
-          <div className="mx-auto max-w-4xl">
-            <Kicker>A partner writes</Kicker>
-            <blockquote className="reveal mt-8">
-              <p className="font-display text-display leading-[1.02] text-ink">
-                &ldquo;We went from stacks of green folders to <span className="italic-display">every ward running on Vedge in six weeks</span>. The training wasn&rsquo;t the hard part. Convincing the matron we could retire paper forever was.&rdquo;
-              </p>
-              <footer className="reveal reveal-delay-1 mt-12 flex items-center gap-6">
-                <div className="h-14 w-14 rounded-full bg-forest ring-4 ring-sun/30" aria-hidden="true" />
-                <div>
-                  <div className="font-display text-xl">Dr. Ama Owusu</div>
-                  <div className="font-mono text-[11px] uppercase tracking-kicker text-ink/60">
-                    Medical director · Ridge Hospital pilot
-                  </div>
-                </div>
-              </footer>
-            </blockquote>
-          </div>
-        </Container>
-      </section>
-
       {/* ═══════════════════════ CTA BLOCK ═══════════════════════ */}
       <section className="bg-forest-deep text-bone">
         <Container className="py-28 md:py-40">
@@ -404,10 +381,6 @@ export default function HomePage() {
                 <li>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-bone/50">Email</div>
                   <div className="font-display text-2xl text-bone">{LEGAL_CONFIG.contactEmail}</div>
-                </li>
-                <li>
-                  <div className="font-mono text-[10px] uppercase tracking-kicker text-bone/50">Accra</div>
-                  <div className="font-display text-2xl text-bone">+233 30 000 0000</div>
                 </li>
                 <li>
                   <div className="font-mono text-[10px] uppercase tracking-kicker text-bone/50">Hours</div>

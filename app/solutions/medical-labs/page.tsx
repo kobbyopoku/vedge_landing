@@ -5,6 +5,9 @@ import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
 import { ProductShot } from "../../_components/ProductShot";
+import { registerHref } from "../../_data/plans";
+
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
 
 export const metadata: Metadata = {
   title: "For laboratories",
@@ -62,7 +65,8 @@ export default function LaboratoriesPage() {
                 Vedge Laboratory is a full LIS built around the reality of African diagnostics: a dozen instruments from six vendors, reference ranges that need to update as populations do, reagent lots traceable for audit season, and results routed back to whatever insurance plan paid for them.
               </p>
               <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
-                <Button href="/contact">Book a bench demo</Button>
+                <Button href={registerHref(appUrl, "LABORATORY")}>Start free</Button>
+                <Button href="/contact" variant="ghost">Book a bench demo</Button>
                 <Button href="/pricing#lab" variant="ghost">See lab pricing</Button>
               </div>
             </div>
@@ -127,7 +131,7 @@ export default function LaboratoriesPage() {
         }
         body="Adelaide Kusi. Belinda Gyamfi. Ama Bannerman flagged urgent. The bench shows every order with its patient, ordering clinician, priority flag, and test count on one row — Orders, Results, Test Catalog, Panels, and TAT as sibling tabs on top."
         src="/screenshots/web-lab.png"
-        alt="Lab dashboard showing the Orders tab with a table of lab orders — patient name, ordering provider Ama Owusu, test count, and priority pills (Urgent highlighted amber, Routine default)."
+        alt="Lab dashboard showing the Orders tab with a table of lab orders — patient name, ordering provider, test count, and priority pills (Urgent highlighted amber, Routine default)."
       />
 
       <KenteDivider className="bg-bone-deep py-4" />
@@ -207,7 +211,8 @@ export default function LaboratoriesPage() {
               A lab director shouldn&rsquo;t have to babysit a spreadsheet. <span className="italic-display">Let&rsquo;s fix that.</span>
             </h2>
             <div className="reveal reveal-delay-1 mt-12 flex justify-center gap-4">
-              <Button href="/contact">Book a bench demo</Button>
+              <Button href={registerHref(appUrl, "LABORATORY")}>Start free</Button>
+              <Button href="/contact" variant="ghost">Book a bench demo</Button>
               <Button href="/pricing#lab" variant="ghost">Lab pricing</Button>
             </div>
           </div>

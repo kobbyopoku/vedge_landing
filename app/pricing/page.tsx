@@ -4,7 +4,7 @@ import { Container } from "../_components/Container";
 import { Kicker } from "../_components/Kicker";
 import { Button } from "../_components/Button";
 import { KenteDivider } from "../_components/KenteDivider";
-import { formatPrice, annualPrice, type Vertical } from "../_data/plans";
+import { formatPrice, annualPrice, registerHref, verticalOrgType, type Vertical } from "../_data/plans";
 import { getPlans } from "../_lib/api";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
@@ -51,6 +51,26 @@ const segments: { key: Vertical; title: string; kicker: string; note: string; an
     note: "Three tiers for imaging centres of every size. Starter covers CT, X-ray, and ultrasound. Pro adds MRI, mammography, ECG, and PACS. Enterprise extends to multi-site teleradiology networks.",
     anchor: "diagnostic",
   },
+];
+
+// Catalogue types with no workflow of their own yet, grouped by the
+// standard setup each runs on (decision 21 Nov, UX-001 / UX-038).
+const otherFacilityTypes = [
+  {
+    setup: "hospital & clinic",
+    types: [
+      "Polyclinic",
+      "Nursing home",
+      "Rehabilitation centre",
+      "Maternity home",
+      "Dental clinic",
+      "Eye clinic",
+      "Mental health",
+      "Telehealth",
+      "Ambulance service",
+    ],
+  },
+  { setup: "laboratory", types: ["Blood bank"] },
 ];
 
 export default async function PricingPage() {
@@ -187,7 +207,7 @@ export default async function PricingPage() {
                                   </Link>
                                 ) : (
                                   <a
-                                    href={`${appUrl}/register`}
+                                    href={registerHref(appUrl, verticalOrgType[segment.key], plan.code)}
                                     className="link-grow font-mono text-[11px] uppercase tracking-kicker text-clay"
                                   >
                                     Start free trial →
@@ -206,6 +226,40 @@ export default async function PricingPage() {
           </section>
         );
       })}
+
+      {/* ═══════════════ OTHER FACILITY TYPES (UX-038) ═══════════════ */}
+      <section id="other" className="border-t border-ink/15 bg-bone py-24 md:py-32">
+        <Container>
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 md:col-span-4">
+              <Kicker>Early access</Kicker>
+              <h2 className="reveal mt-6 font-display text-display">Other facility types</h2>
+            </div>
+            <div className="col-span-12 md:col-span-8">
+              <p className="reveal max-w-2xl text-ink/80">
+                You can sign up as one of these today, but none has its own workflow yet. Each runs on our
+                nearest standard setup, on that setup&rsquo;s plans, while we build what it needs. Some
+                things you would expect, such as blood stock or ambulance dispatch, are not there yet.
+                Talk to us first so we can tell you honestly what will and will not work for you.
+              </p>
+              <dl className="mt-10 grid gap-8 sm:grid-cols-2">
+                {otherFacilityTypes.map((group) => (
+                  <div key={group.setup} className="border-t border-ink/20 pt-6">
+                    <dt className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">
+                      Runs on the {group.setup} setup
+                    </dt>
+                    <dd className="mt-3 text-ink/80">{group.types.join(", ")}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-10 flex flex-wrap gap-4">
+                <Button href="/contact">Talk to us first</Button>
+                <Button href={registerHref(appUrl)} variant="ghost">Start free</Button>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
 
       <KenteDivider className="bg-bone py-4" />
 

@@ -5,7 +5,7 @@ import { Kicker } from "../../_components/Kicker";
 import { Button } from "../../_components/Button";
 import { StatBlock } from "../../_components/StatBlock";
 import { KenteDivider } from "../../_components/KenteDivider";
-import { formatPrice, annualPrice } from "../../_data/plans";
+import { formatPrice, annualPrice, registerHref } from "../../_data/plans";
 import { getPlans } from "../../_lib/api";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5177";
@@ -132,7 +132,7 @@ export default async function DiagnosticCentersPage() {
                     Walk-ins, multi-modality workflows, WhatsApp-deliverable reports, and payment that happens at your counter — not upfront. Vedge handles the full imaging cycle so your radiographers and radiologists can stay focused on the patient.
                   </p>
                   <div className="reveal reveal-delay-2 mt-10 flex flex-wrap gap-4">
-                    <Button href={`${appUrl}/register`}>Start 14-day free trial</Button>
+                    <Button href={registerHref(appUrl, "DIAGNOSTIC_CENTER")}>Start 14-day free trial</Button>
                     <Button href="/pricing#diagnostic" variant="ghost">See imaging pricing</Button>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export default async function DiagnosticCentersPage() {
                             </ul>
                             <div className="mt-6">
                               <a
-                                href={`${appUrl}/register`}
+                                href={registerHref(appUrl, "DIAGNOSTIC_CENTER", plan.code)}
                                 className="link-grow font-mono text-[11px] uppercase tracking-kicker text-clay"
                               >
                                 Start free trial →
@@ -438,7 +438,7 @@ export default async function DiagnosticCentersPage() {
             </div>
             <div className="col-span-12 mt-8 md:col-span-4 md:mt-0 md:flex md:items-end md:justify-end">
               <Button
-                href={`${appUrl}/register`}
+                href={registerHref(appUrl, "DIAGNOSTIC_CENTER")}
                 variant="ghost"
                 className="!border-bone/40 !text-bone hover:!bg-bone hover:!text-forest-deep"
               >

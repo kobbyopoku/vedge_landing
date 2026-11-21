@@ -12,19 +12,16 @@ const offices = [
   {
     city: "Accra",
     address: "14 Ring Road East, Accra, Ghana",
-    phone: "+233 30 000 0000",
     hours: "Mon — Sat · 08:00 — 19:00 GMT",
   },
   {
     city: "Takoradi",
     address: "Beach Road · Takoradi · Western Region",
-    phone: "+233 31 000 0000",
     hours: "Mon — Fri · 09:00 — 18:00 GMT",
   },
   {
     city: "Lagos",
     address: "Lekki Phase I · Lagos State · Nigeria",
-    phone: "+234 1 000 0000",
     hours: "Mon — Fri · 09:00 — 18:00 WAT",
   },
 ];
@@ -67,7 +64,6 @@ export default function ContactPage() {
                     <h2 className="font-display text-3xl">{o.city}</h2>
                     <div className="mt-4 space-y-2 text-ink/75">
                       <div>{o.address}</div>
-                      <div>{o.phone}</div>
                       <div className="font-mono text-[10px] uppercase tracking-kicker text-ink/55">{o.hours}</div>
                     </div>
                   </li>

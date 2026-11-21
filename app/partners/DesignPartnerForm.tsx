@@ -100,16 +100,16 @@ export function DesignPartnerForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-        <DarkField label="Your name" name="name" type="text" required placeholder="Dr. Ama Owusu" />
+        <DarkField label="Your name" name="name" type="text" required placeholder="Your full name" />
         <DarkField label="Role" name="role" type="text" required placeholder="Medical director" />
       </div>
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-        <DarkField label="Work email" name="email" type="email" required placeholder="ama@ridgehospital.gh" />
+        <DarkField label="Work email" name="email" type="email" required placeholder="you@yourfacility.com" />
         <DarkField label="Phone" name="phone" type="tel" required placeholder="+233 24 000 0000" />
       </div>
 
-      <DarkField label="Facility name" name="facility" type="text" required placeholder="Ridge Hospital" />
+      <DarkField label="Facility name" name="facility" type="text" required placeholder="Your facility's name" />
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
         <DarkSelect label="Facility type" name="facility_type" required options={facilityTypes} placeholder="Choose one" />

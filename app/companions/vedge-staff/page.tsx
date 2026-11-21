@@ -189,7 +189,7 @@ export default function VedgeStaffPage() {
                   />
                 </div>
                 <p className="mt-5 text-center font-mono text-[10px] uppercase tracking-kicker text-ink/60">
-                  Nurse · Day shift · Ridge Hospital
+                  Nurse · Day shift · Demo tenant
                 </p>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function VedgeStaffPage() {
                 Not mock-ups. <br /><span className="italic-display">Ship-ready.</span>
               </h2>
               <p className="reveal reveal-delay-1 mt-6 max-w-sm text-ink/70">
-                Every screen here is a build straight from our CI pipeline, running on a staff member&rsquo;s phone against a live Ridge Hospital tenant. No placeholders.
+                Every screen here is a real build straight from our CI pipeline, captured on a phone against a demo tenant filled with test data.
               </p>
             </div>
 

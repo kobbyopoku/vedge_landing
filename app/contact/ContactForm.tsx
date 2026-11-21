@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CONTACT_EMAIL, sendContactMessage } from "./sendContactMessage";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -13,36 +14,53 @@ const facilityTypes = [
 ] as const;
 
 /**
- * Minimal client-side form. Captures facility details and a free-text message.
- * On submit, logs the payload and shows a success state. Wire to Formspree,
- * Resend, or a custom API route before launch — no PII is stored client-side.
+ * Contact form. Sends through /api/contact, which saves the message on the
+ * backend and emails the team (UX-023). It says "received" only when the
+ * message was saved; otherwise it shows the error and our email address.
+ *
+ * No `.reveal` here: the success panel (and the form, after "send another")
+ * mount after RevealMount has run, so they would stay at opacity 0.
  */
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState("");
+  // The long form collapses into a short panel, which leaves the visitor
+  // looking at empty space below it; bring the answer into view.
+  const answer = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (status === "success" || status === "error") {
+      answer.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  }, [status]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("submitting");
+    setError("");
 
     const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
+    const data = Object.fromEntries(
+      Array.from(new FormData(form).entries(), ([k, v]) => [k, String(v)]),
+    );
 
-    // Deliberate placeholder — swap for a real endpoint before launch.
-    // eslint-disable-next-line no-console
-    console.log("[vedge-landing] contact form submission", data);
-
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setStatus("success");
-    form.reset();
+    const result = await sendContactMessage(data);
+    if (result.ok) {
+      setStatus("success");
+      form.reset();
+    } else {
+      setStatus("error");
+      setError(result.error);
+    }
   }
 
   if (status === "success") {
     return (
-      <div className="reveal border border-forest bg-forest/5 p-10">
+      <div ref={answer} role="status" className="border border-forest bg-forest/5 p-10">
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-forest">Message received</div>
         <h2 className="mt-4 font-display text-3xl">We&rsquo;ll be in touch within one working day.</h2>
         <p className="mt-4 max-w-md text-ink/75">
-          If it&rsquo;s urgent, call Accra on <span className="font-mono">+233 30 000 0000</span> between 08:00 and 19:00 GMT. Otherwise, expect an email soon.
+          Expect an email soon. If it&rsquo;s urgent, write to{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">{CONTACT_EMAIL}</a>.
         </p>
         <button
           type="button"
@@ -56,10 +74,10 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="reveal space-y-10">
-      <Field label="Your name" name="name" type="text" required placeholder="Dr. Ama Owusu" />
-      <Field label="Work email" name="email" type="email" required placeholder="ama@ridgehospital.gh" />
-      <Field label="Facility name" name="facility" type="text" required placeholder="Ridge Hospital" />
+    <form onSubmit={handleSubmit} className="space-y-10">
+      <Field label="Your name" name="name" type="text" required placeholder="Your full name" />
+      <Field label="Work email" name="email" type="email" required placeholder="you@yourfacility.com" />
+      <Field label="Facility name" name="facility" type="text" required placeholder="Your facility's name" />
       <SelectField
         label="Facility type"
         name="facility_type"
@@ -82,6 +100,16 @@ export function ContactForm() {
           className="mt-3 w-full border-0 border-b border-ink/25 bg-transparent py-3 font-display text-xl text-ink placeholder:text-ink/30 focus:border-forest focus:outline-none"
         />
       </div>
+
+      {status === "error" && (
+        <div ref={answer} role="alert" className="border border-clay bg-clay/5 p-6 text-ink">
+          <p>{error}</p>
+          <p className="mt-3">
+            Or write to us directly:{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-mono underline underline-offset-4">{CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      )}
 
       <div className="pt-4">
         <button

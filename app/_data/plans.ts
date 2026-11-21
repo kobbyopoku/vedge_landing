@@ -350,3 +350,25 @@ export function annualPrice(monthly: number | "custom"): number | "custom" {
   if (monthly === "custom" || monthly === 0) return monthly;
   return Math.round(monthly * 12 * ANNUAL_DISCOUNT);
 }
+
+/**
+ * The app's facility type for each pricing segment, so sign-up links can
+ * preselect it (UX-037). Hospital plans also cover clinics; /register lets
+ * the visitor switch. Patients do not register a facility.
+ */
+export const verticalOrgType: Record<Vertical, string | null> = {
+  hospital: "HOSPITAL",
+  laboratory: "LABORATORY",
+  pharmacy: "PHARMACY",
+  diagnostic_center: "DIAGNOSTIC_CENTER",
+  patient: null,
+};
+
+/** The app's /register link, carrying the facility type and plan when known. */
+export function registerHref(appUrl: string, type?: string | null, plan?: string | null): string {
+  const params = new URLSearchParams();
+  if (type) params.set("type", type);
+  if (type && plan) params.set("plan", plan);
+  const query = params.toString();
+  return `${appUrl}/register${query ? `?${query}` : ""}`;
+}
